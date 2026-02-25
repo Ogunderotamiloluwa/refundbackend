@@ -15,25 +15,20 @@ const getAPIUrl = () => {
     return localUrl;
   }
   
-  // Priority 3: Production Deployment
-  // If deployed on Netlify, backend is typically on Render with a custom domain
-  // or as a proxy. Default to assuming backend is on same domain with /api proxy
+  // Priority 3: Production Deployment on Netlify with Render backend
+  if (window.location.hostname.includes('netlify.app')) {
+    console.log('⚠️ Netlify deployment - VITE_API_URL not set! Please set it in Netlify environment variables.');
+    return 'https://persona-assistant-backend.onrender.com';
+  }
+  
+  // Fallback for other HTTPS domains
   if (window.location.protocol === 'https:') {
-    // Try to use relative path first (requires proxy setup in Netlify)
-    // This assumes you've set up a rewrite rule in netlify.toml
-    if (window.location.hostname.includes('netlify.app')) {
-      console.log('✅ Netlify deployment - Using relative API path');
-      return '/api';
-    }
-    
-    // If on custom domain, try to construct backend URL
-    // Replace frontend domain with backend domain if available
     const apiUrl = `https://${window.location.hostname}:5007`;
     console.log('✅ HTTPS Production - Using:', apiUrl);
     return apiUrl;
   }
   
-  // Fallback
+  // Fallback for HTTP
   const fallbackUrl = `http://${window.location.hostname}:5007`;
   console.log('✅ Fallback - Using:', fallbackUrl);
   return fallbackUrl;
