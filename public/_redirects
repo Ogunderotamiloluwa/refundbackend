@@ -1,0 +1,5 @@
+# API proxy rewrites
+/api/*  /api/:splat  200
+
+# SPA routing - send all requests to index.html
+/*    /index.html   200
