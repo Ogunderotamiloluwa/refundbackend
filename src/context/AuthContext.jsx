@@ -56,19 +56,29 @@ export function AuthProvider({ children }) {
       const savedToken = localStorage.getItem('token')
       
       if (savedToken) {
-        // Verify token is still valid
-        const isValid = await verifyToken(savedToken)
+        // Try to verify token with 1.5 second timeout (Netlify is usually fast if API is available)
+        const verifyPromise = verifyToken(savedToken)
+        const timeoutPromise = new Promise(resolve => 
+          setTimeout(() => {
+            console.log('⏱️ Token verification timeout - API may be down');
+            resolve(false)
+          }, 1500)
+        )
+        
+        const isValid = await Promise.race([verifyPromise, timeoutPromise])
+        
         if (isValid) {
           setToken(savedToken)
+          console.log('✅ Token verified successfully')
         } else {
-          // Token is invalid, clear it
-          console.log('🗑️ Clearing invalid token');
+          console.log('🗑️ Clearing invalid or unverifiable token');
           localStorage.removeItem('token')
           setToken(null)
           setUser(null)
         }
       }
       
+      // Always finish loading immediately after token check
       setLoading(false)
     }
 
