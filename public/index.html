@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="dns-prefetch" href="http://localhost:5000">
+  <link rel="preconnect" href="http://localhost:5000">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" as="style">
+  <title>PA Manager - Your Personal AI Assistant</title>
+  <style>
+    :root {
+      --primary-color: #667eea;
+      --secondary-color: #764ba2;
+      --accent-color: #f093fb;
+      --dark-bg: #0f1419;
+      --light-bg: #f8f9fa;
+      --text-dark: #1a1a1a;
+      --text-light: #666666;
+      --border-color: #e0e0e0;
+      --success-color: #4caf50;
+      --warning-color: #ff9800;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #ffffff;
+      color: var(--text-dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Navigation */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      box-shadow: var(--shadow);
+      padding: 12px 16px;
+    }
+
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .logo-icon {
+      font-size: 1.5rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 30px 16px 40px;
+      text-align: center;
+      min-height: auto;
+    }
+
+    .hero-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 16px;
+      color: var(--text-dark);
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: space-around;
+      gap: 12px;
+      margin-bottom: 32px;
+      background: var(--light-bg);
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-number {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      color: var(--text-light);
+      font-size: 0.75rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      touch-action: manipulation;
+      min-height: 44px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+    }
+
+    .btn-secondary:active {
+      background: var(--light-bg);
+    }
+
+    /* Features Section */
+    .features {
+      background: var(--light-bg);
+      padding: 40px 16px;
+    }
+
+    .features > h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: var(--text-dark);
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--primary-color);
+      transition: all 0.2s ease;
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: var(--text-dark);
+    }
+
+    .feature-card p {
+      color: var(--text-light);
+      line-height: 1.6;
+      font-size: 0.9rem;
+    }
+
+    /* Benefits Section */
+    .benefits {
+      padding: 40px 16px;
+      background: white;
+    }
+
+    .benefits > h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 32px;
+    }
+
+    .benefits-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .benefit-item {
+      padding: 20px;
+      border-left: 4px solid var(--secondary-color);
+      background: var(--light-bg);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .benefit-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      opacity: 0.15;
+    }
+
+    .benefit-item h3 {
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+
+    .benefit-item p {
+      color: var(--text-light);
+      line-height: 1.6;
+      font-size: 0.9rem;
+    }
+
+    /* Testimonials Section */
+    .testimonials {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      padding: 40px 16px;
+      color: white;
+    }
+
+    .testimonials > h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 28px;
+      color: white;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .testimonial-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stars {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .testimonial-card p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+
+    .author-name {
+      font-weight: 600;
+      margin-bottom: 2px;
+      font-size: 0.9rem;
+    }
+
+    .author-role {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+      padding: 40px 16px;
+      text-align: center;
+      color: white;
+    }
+
+    .cta-content h2 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+
+    .cta-content p {
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      opacity: 0.95;
+    }
+
+    .cta-highlight {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--dark-bg);
+      color: white;
+      padding: 32px 16px 16px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .footer-section h4 {
+      margin-bottom: 12px;
+      color: var(--accent-color);
+      font-size: 0.95rem;
+    }
+
+    .footer-section p {
+      color: #999;
+      line-height: 1.6;
+      font-size: 0.9rem;
+    }
+
+    .footer-section ul {
+      list-style: none;
+    }
+
+    .footer-section ul li {
+      margin-bottom: 8px;
+    }
+
+    .footer-section a {
+      color: #999;
+      text-decoration: none;
+      transition: color 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid #333;
+      color: #666;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-content">
+      <div class="logo">
+        <span class="logo-icon">⚡</span>
+        <span>PA</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1 class="hero-title">Meet Your AI Manager</h1>
+    <p class="hero-subtitle">Boss helps you manage routines, habits, and productivity with smart AI suggestions and real-time notifications.</p>
+    
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-number">50K+</span>
+        <span class="stat-label">Users</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">2M+</span>
+        <span class="stat-label">Habits</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">95%</span>
+        <span class="stat-label">Success</span>
+      </div>
+    </div>
+
+    <div class="hero-buttons">
+      <button class="btn btn-primary">Get Started</button>
+      <button class="btn btn-secondary">Learn More</button>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2>Why Choose Boss</h2>
+    <p class="section-subtitle">Powerful features designed for you</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Smart Routines</h3>
+        <p>Manage daily routines with AI-powered reminders.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Habit Tracking</h3>
+        <p>Track habits and stay accountable every day.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Suggestions</h3>
+        <p>Personalized recommendations based on your patterns.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Push Notifications</h3>
+        <p>Get real-time reminders when you need them.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎮</div>
+        <h3>Gamification</h3>
+        <p>Earn points and badges for staying productive.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Analytics</h3>
+        <p>Track your progress with detailed insights.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="benefits">
+    <h2>What You'll Get</h2>
+
+    <div class="benefits-container">
+      <div class="benefit-item">
+        <div class="benefit-number">01</div>
+        <h3>Manage Like a CEO</h3>
+        <p>Boss organizes your day and keeps you focused on what matters most.</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="benefit-number">02</div>
+        <h3>Build Better Habits</h3>
+        <p>Break bad patterns and build lasting positive changes with accountability.</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="benefit-number">03</div>
+        <h3>Smart Insights</h3>
+        <p>AI understands your patterns and suggests exactly what you need.</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="benefit-number">04</div>
+        <h3>Never Miss Tasks</h3>
+        <p>Real-time notifications keep you in sync with your goals.</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="benefit-number">05</div>
+        <h3>Fun & Rewarding</h3>
+        <p>Earn rewards and maintain streaks. Productivity just got enjoyable.</p>
+      </div>
+
+      <div class="benefit-item">
+        <div class="benefit-number">06</div>
+        <h3>Continuous Growth</h3>
+        <p>Learn and improve at your own pace with personalized guidance.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <h2>Real Users, Real Results</h2>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p>"Boss changed my productivity game. I'm executing better now."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">JK</div>
+          <div>
+            <p class="author-name">Jake Kumar</p>
+            <p class="author-role">Entrepreneur</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p>"Finally an app that keeps me accountable without being harsh."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">SM</div>
+          <div>
+            <p class="author-name">Sarah Mitchell</p>
+            <p class="author-role">Fitness Coach</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p>"The AI knows what I need. Personalization at its best."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">AP</div>
+          <div>
+            <p class="author-name">Alex Pro</p>
+            <p class="author-role">Developer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2>Ready to Meet Your Boss?</h2>
+      <p>Start your free trial. No credit card needed.</p>
+      <p class="cta-highlight">90-day free access. Cancel anytime.</p>
+      
+      <button class="btn btn-primary">Start Free Trial</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>PA Manager</h4>
+        <p>Your personal AI assistant for productivity and habits.</p>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Benefits</a></li>
+          <li><a href="#">Pricing</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2026 PA Manager. Made with ❤️ for your productivity.</p>
+    </div>
+  </footer>
+</body>
+</html>
