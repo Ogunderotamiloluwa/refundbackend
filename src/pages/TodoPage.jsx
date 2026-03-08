@@ -214,34 +214,37 @@ export default function TodoPage() {
 
       {/* Header */}
       <div className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+        <div className="max-w-6xl mx-auto px-4 py-4 md:py-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4 flex-shrink-0 w-full md:w-auto">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.hash = '#/dashboard'}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-command-gold hover:bg-glass-bg transition-colors flex-shrink-0"
+              >
+                <ArrowLeft size={18} />
+                <span className="hidden sm:inline">Back</span>
+              </motion.button>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl md:text-3xl font-bold text-white truncate">My Todos</h1>
+                <p className="text-xs md:text-sm text-gray-400 mt-1 hidden sm:block">Track your tasks with location and time awareness</p>
+              </div>
+            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.location.hash = '#/dashboard'}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-command-gold hover:bg-glass-bg transition-colors"
+              onClick={() => {
+                setEditingTodo(null)
+                setIsModalOpen(true)
+              }}
+              className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold hover:shadow-lg transition-all text-sm md:text-base flex-shrink-0"
             >
-              <ArrowLeft size={18} />
-              Back
+              <Plus size={18} className="md:w-5 md:h-5" />
+              <span>Add</span>
+              <span className="hidden sm:inline">Todo</span>
             </motion.button>
-            <div>
-              <h1 className="text-3xl font-bold text-white">📋 My Todos</h1>
-              <p className="text-sm text-gray-400 mt-1">Track your tasks with location and time awareness</p>
-            </div>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setEditingTodo(null)
-              setIsModalOpen(true)
-            }}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold hover:shadow-lg transition-all"
-          >
-            <Plus size={20} />
-            Add Todo
-          </motion.button>
         </div>
       </div>
 
