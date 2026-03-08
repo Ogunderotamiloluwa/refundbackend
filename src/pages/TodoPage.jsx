@@ -81,14 +81,14 @@ export default function TodoPage() {
         setEditingTodo(null)
         addNotification({
           type: 'success',
-          title: '✅ Todo Created',
+          title: 'Todo Created',
           message: `${formData.title} added to your todos`
         })
       }
     } catch (err) {
       addNotification({
         type: 'alert',
-        title: '⚠️ Error',
+        title: 'Error',
         message: 'Failed to create todo'
       })
       throw new Error('Failed to create todo')
@@ -114,14 +114,14 @@ export default function TodoPage() {
         setEditingTodo(null)
         addNotification({
           type: 'success',
-          title: '✏️ Todo Updated',
+          title: 'Todo Updated',
           message: `${formData.title} has been updated`
         })
       }
     } catch (err) {
       addNotification({
         type: 'alert',
-        title: '⚠️ Error',
+        title: 'Error',
         message: 'Failed to update todo'
       })
       throw new Error('Failed to update todo')
@@ -144,7 +144,7 @@ export default function TodoPage() {
         setTodos(todos.map(t => t.id === todoId ? data.todo : t))
         addNotification({
           type: 'success',
-          title: '✅ Todo Completed',
+          title: 'Todo Completed',
           message: 'Great job, boss! Todo marked complete.'
         })
         
@@ -157,7 +157,7 @@ export default function TodoPage() {
       console.error('Failed to complete todo:', err)
       addNotification({
         type: 'alert',
-        title: '⚠️ Error',
+        title: 'Error',
         message: 'Failed to complete todo'
       })
     }
@@ -178,7 +178,7 @@ export default function TodoPage() {
         setTodos(todos.filter(t => t.id !== todoId))
         addNotification({
           type: 'info',
-          title: '🗑️ Todo Deleted',
+          title: 'Todo Deleted',
           message: 'Todo removed from your list'
         })
       }
@@ -186,7 +186,7 @@ export default function TodoPage() {
       console.error('Failed to delete todo:', err)
       addNotification({
         type: 'alert',
-        title: '⚠️ Error',
+        title: 'Error',
         message: 'Failed to delete todo'
       })
     }
@@ -285,7 +285,7 @@ export default function TodoPage() {
             {pendingTodos.length > 0 ? (
               <div>
                 <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                  📝 Active Todos
+                  Active Todos
                   {highRiskTodos.length > 0 && (
                     <span className="flex items-center gap-1 ml-auto text-sm bg-red-500/20 text-red-300 px-3 py-1 rounded-full">
                       <AlertTriangle size={14} />

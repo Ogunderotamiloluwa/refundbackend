@@ -87,7 +87,7 @@ function DashboardContent() {
     try {
       const initialized = await notificationService.initialize()
       if (initialized) {
-        console.log('✅ Notifications enabled');
+        console.log('Notifications enabled');
         // Try to subscribe to push notifications
         await notificationService.subscribeToPushNotifications(token)
       }
@@ -321,7 +321,7 @@ function DashboardContent() {
                     whileHover={{ scale: 1.02 }}
                     className="block p-5 rounded-2xl bg-gradient-to-br from-yellow-600/20 to-yellow-800/20 border border-yellow-500/50 backdrop-blur-xl hover:border-yellow-400/70 transition-all cursor-pointer"
                   >
-                    <div className="text-2xl mb-2">🌤️</div>
+                    <div className="text-2xl mb-2">●</div>
                     <h3 className="text-base font-semibold text-white">Weather</h3>
                     <p className="text-xs text-gray-300">Real-time conditions & alerts</p>
                   </motion.a>

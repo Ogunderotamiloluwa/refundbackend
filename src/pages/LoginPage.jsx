@@ -18,7 +18,7 @@ export default function LoginPage({ onSuccess }) {
     setLoading(true)
 
     try {
-      console.log('🔐 LOGIN ATTEMPT');
+      console.log('LOGIN ATTEMPT');
       console.log('   API_URL:', API_URL);
       console.log('   Full URL:', `${API_URL}/api/auth/login`);
       console.log('   Email:', email);
@@ -45,17 +45,17 @@ export default function LoginPage({ onSuccess }) {
         const contentType = response.headers.get('content-type')
         if (contentType && contentType.includes('application/json')) {
           const data = await response.json()
-          console.log('❌ Login failed:', data.error);
+          console.log('Login failed:', data.error);
           setError(data.error || 'Login failed')
         } else {
-          console.log('❌ Server error - non-JSON response');
+          console.log('Server error - non-JSON response');
           setError('Server error. Please check backend connection.')
         }
         return
       }
 
       const data = await response.json()
-      console.log('✅ Login successful!');
+      console.log('Login successful!');
       console.log('   Token:', data.token);
       console.log('   User:', data.user);
 

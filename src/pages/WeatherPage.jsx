@@ -35,7 +35,7 @@ export default function WeatherPage() {
           },
           (err) => {
             clearTimeout(timeoutId)
-            console.log('❌ Geolocation error:', err.message)
+            console.log('Geolocation error:', err.message)
             let errorMsg = 'Location not available. '
             
             switch(err.code) {
@@ -61,7 +61,7 @@ export default function WeatherPage() {
           }
         )
       } else {
-        setError('⚠️ Geolocation is not supported in your browser. Please search for a location below.')
+        setError('Geolocation is not supported in your browser. Please search for a location below.')
         setLoading(false)
       }
     }
@@ -176,15 +176,15 @@ export default function WeatherPage() {
 
   const getWeatherIcon = (code) => {
     if (!code) return '🌍'
-    if (code === 0) return '☀️'
-    if (code === 1 || code === 2) return '⛅'
-    if (code === 3) return '☁️'
-    if (code === 45 || code === 48) return '🌫️'
-    if (code >= 51 && code <= 67) return '🌦️'
-    if (code >= 71 && code <= 77) return '❄️'
-    if (code >= 80 && code <= 82) return '🌧️'
-    if (code >= 85 && code <= 86) return '🌨️'
-    return '🌈'
+    if (code === 0) return '●'
+    if (code === 1 || code === 2) return '◐'
+    if (code === 3) return '○'
+    if (code === 45 || code === 48) return '◤'
+    if (code >= 51 && code <= 67) return '◑'
+    if (code >= 71 && code <= 77) return '❄'
+    if (code >= 80 && code <= 82) return '≈'
+    if (code >= 85 && code <= 86) return '※'
+    return '◎'
   }
 
   const getAlertLevel = (code) => {
@@ -231,7 +231,7 @@ export default function WeatherPage() {
               Back
             </motion.button>
             <div>
-              <h1 className="text-3xl font-bold text-white">🌤️ Weather & Forecast</h1>
+              <h1 className="text-3xl font-bold text-white">Weather & Forecast</h1>
               <p className="text-sm text-gray-400 mt-1">Live weather with accurate forecasts</p>
             </div>
           </div>
@@ -391,12 +391,12 @@ export default function WeatherPage() {
                   <AlertTriangle className={alertLevel === 'danger' ? 'text-red-400' : 'text-yellow-400'} size={32} />
                   <div>
                     <h3 className={`text-xl font-bold mb-2 ${alertLevel === 'danger' ? 'text-red-300' : 'text-yellow-300'}`}>
-                      ⚠️ Weather Alert
+                      Weather Alert
                     </h3>
                     <p className={`text-lg ${alertLevel === 'danger' ? 'text-red-200' : 'text-yellow-200'}`}>
-                      {weather.raining && '🌧️ Rain detected'}
-                      {weather.snowing && '❄️ Snow - Drive carefully'}
-                      {weather.cloudCover > 80 && '☁️ Heavy cloud cover'}
+                      {weather.raining && 'Rain detected'}
+                      {weather.snowing && 'Snow - Drive carefully'}
+                      {weather.cloudCover > 80 && 'Heavy cloud cover'}
                     </p>
                   </div>
                 </div>

@@ -73,7 +73,7 @@ export default function HabitModal({ isOpen, onClose, onSave, habit = null }) {
         name: '',
         description: '',
         frequency: 'daily',
-        icon: '🎯',
+        icon: '●',
         color: '#d4af37',
         target: 30,
         startTime: '09:00',

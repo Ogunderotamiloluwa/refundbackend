@@ -25,7 +25,7 @@ export default function HabitCardEnhanced({ habit, onComplete, onDelete, onEdit 
         // Show success notification
         addNotification({
           type: 'success',
-          title: '✅ Habit Completed!',
+          title: 'Habit Completed!',
           message: `${habit.name} marked complete! Great job, boss.`
         })
         onComplete && onComplete(data)
@@ -34,7 +34,7 @@ export default function HabitCardEnhanced({ habit, onComplete, onDelete, onEdit 
       console.error('Failed to complete habit:', err)
       addNotification({
         type: 'alert',
-        title: '⚠️ Error',
+        title: 'Error',
         message: 'Failed to complete habit'
       })
     } finally {
@@ -58,7 +58,7 @@ export default function HabitCardEnhanced({ habit, onComplete, onDelete, onEdit 
       if (response.ok) {
         addNotification({
           type: 'info',
-          title: '🗑️ Habit Deleted',
+          title: 'Habit Deleted',
           message: `${habit.name} has been removed`
         })
         onDelete && onDelete(habit.id)
@@ -67,7 +67,7 @@ export default function HabitCardEnhanced({ habit, onComplete, onDelete, onEdit 
       console.error('Failed to delete habit:', err)
       addNotification({
         type: 'alert',
-        title: '⚠️ Error',
+        title: 'Error',
         message: 'Failed to delete habit'
       })
     }

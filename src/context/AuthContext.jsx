@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   // Verify token validity with backend
   const verifyToken = async (authToken) => {
     try {
-      console.log('🔐 Verifying token with backend...');
+      console.log('Verifying token with backend...');
       const response = await fetch(`${API_URL}/api/auth/verify`, {
         method: 'GET',
         headers: {
@@ -22,11 +22,11 @@ export function AuthProvider({ children }) {
       })
 
       if (!response.ok) {
-        console.log('❌ Token verification failed');
+        console.log('Token verification failed');
         return false;
       }
 
-      console.log('✅ Token is valid');
+      console.log('Token is valid');
       // Now fetch user profile
       const profileResponse = await fetch(`${API_URL}/api/users/profile`, {
         method: 'GET',
@@ -40,12 +40,12 @@ export function AuthProvider({ children }) {
       if (profileResponse.ok) {
         const data = await profileResponse.json()
         setUser(data.user)
-        console.log('✅ User profile loaded');
+        console.log('User profile loaded');
         return true;
       }
       return false;
     } catch (err) {
-      console.error('❌ Token verification error:', err)
+      console.error('Token verification error:', err)
       return false;
     }
   }
@@ -60,7 +60,7 @@ export function AuthProvider({ children }) {
         const verifyPromise = verifyToken(savedToken)
         const timeoutPromise = new Promise(resolve => 
           setTimeout(() => {
-            console.log('⏱️ Token verification timeout - API may be down');
+            console.log('Token verification timeout - API may be down');
             resolve(false)
           }, 1500)
         )
@@ -69,9 +69,9 @@ export function AuthProvider({ children }) {
         
         if (isValid) {
           setToken(savedToken)
-          console.log('✅ Token verified successfully')
+          console.log('Token verified successfully')
         } else {
-          console.log('🗑️ Clearing invalid or unverifiable token');
+          console.log('Clearing invalid or unverifiable token');
           localStorage.removeItem('token')
           setToken(null)
           setUser(null)
@@ -86,14 +86,14 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = (newToken, userData) => {
-    console.log('📝 Saving token to localStorage');
+    console.log('Saving token to localStorage');
     localStorage.setItem('token', newToken)
     setToken(newToken)
     setUser(userData)
   }
 
   const logout = () => {
-    console.log('👋 Logging out - clearing token');
+    console.log('Logging out - clearing token');
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)

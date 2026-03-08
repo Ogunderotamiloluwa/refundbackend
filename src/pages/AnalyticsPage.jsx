@@ -301,7 +301,7 @@ export default function AnalyticsPage() {
                       className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
                     >
                       <div className="flex items-center gap-3 flex-1">
-                        <span className="text-2xl">{habit.icon || '🎯'}</span>
+                        <span className="text-2xl">{habit.icon || '●'}</span>
                         <div>
                           <h3 className="text-sm font-semibold text-white">{habit.name}</h3>
                           <p className="text-xs text-gray-500">{habit.frequency}</p>

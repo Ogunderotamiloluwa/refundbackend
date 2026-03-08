@@ -64,14 +64,14 @@ export default function HabitsManagementPage() {
         setEditingHabit(null)
         addNotification({
           type: 'success',
-          title: '🎯 New Habit Created',
+          title: 'New Habit Created',
           message: `${formData.name} added to your habits. Let's build this!`
         })
       }
     } catch (err) {
       addNotification({
         type: 'alert',
-        title: '⚠️ Error',
+        title: 'Error',
         message: 'Failed to create habit'
       })
       throw new Error('Failed to create habit')
@@ -97,14 +97,14 @@ export default function HabitsManagementPage() {
         setEditingHabit(null)
         addNotification({
           type: 'success',
-          title: '✏️ Habit Updated',
+          title: 'Habit Updated',
           message: `${formData.name} has been updated`
         })
       }
     } catch (err) {
       addNotification({
         type: 'alert',
-        title: '⚠️ Error',
+        title: 'Error',
         message: 'Failed to update habit'
       })
       throw new Error('Failed to update habit')
@@ -205,7 +205,7 @@ export default function HabitsManagementPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-12 md:py-16"
           >
-            <div className="text-5xl md:text-6xl mb-4">🎯</div>
+            <div className="text-5xl md:text-6xl mb-4">●</div>
             <h2 className="text-xl md:text-2xl font-bold text-white mb-2">No habits yet</h2>
             <p className="text-sm md:text-base text-gray-400 mb-6">Create your first habit to get started!</p>
             <motion.button
