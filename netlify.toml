@@ -3,7 +3,6 @@
 # Cache bust: Force rebuild 2026-02-26
 
 [build]
-  base = "frontend"
   command = "npm install && npm run build"
   publish = "dist"
 
