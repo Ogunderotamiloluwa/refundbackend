@@ -3,8 +3,7 @@
 # Cache bust: 2026-03-08-23-30 - removed duplicate frontend/netlify.toml config
 
 [build]
-  base = "frontend"
-  command = "npm install && npm run build"
+  command = "cd frontend && npm install && npm run build"
   publish = "frontend/dist"
 
 # Set API URL environment variable for Vite build
