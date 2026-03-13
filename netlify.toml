@@ -5,7 +5,7 @@
 [build]
   base = "frontend"
   command = "npm install && npm run build"
-  publish = "dist"
+  publish = "frontend/dist"
 
 # Set API URL environment variable for Vite build
 [build.environment]
