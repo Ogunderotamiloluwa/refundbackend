@@ -67,11 +67,22 @@ export default function TodoReminder() {
   const getTodoRiskColor = (level) => {
     switch (level) {
       case 'high':
-        return 'from-red-600 to-red-800 ring-1 ring-red-500/50'
+        return 'bg-red-50 border-red-200 text-red-900'
       case 'medium':
-        return 'from-yellow-600 to-yellow-800 ring-1 ring-yellow-500/50'
+        return 'bg-amber-50 border-amber-200 text-amber-900'
       default:
-        return 'from-green-600 to-green-800 ring-1 ring-green-500/50'
+        return 'bg-blue-50 border-blue-200 text-blue-900'
+    }
+  }
+
+  const getRiskBadgeColor = (level) => {
+    switch (level) {
+      case 'high':
+        return 'bg-red-200 text-red-700'
+      case 'medium':
+        return 'bg-amber-200 text-amber-700'
+      default:
+        return 'bg-green-200 text-green-700'
     }
   }
 
@@ -84,23 +95,23 @@ export default function TodoReminder() {
         className="relative"
       >
         {/* Main Banner */}
-        <div className={`rounded-2xl p-6 backdrop-blur-xl border transition-all ${
+        <div className={`rounded-xl p-4 sm:p-5 border ${
           highRiskTodos.length > 0
-            ? 'bg-gradient-to-r from-red-600/20 to-red-700/10 border-red-500/40'
+            ? 'bg-red-50 border-red-300'
             : mediumRiskTodos.length > 0
-            ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/10 border-yellow-500/40'
-            : 'bg-gradient-to-r from-blue-600/20 to-blue-700/10 border-blue-500/40'
+            ? 'bg-amber-50 border-amber-300'
+            : 'bg-blue-50 border-blue-300'
         }`}>
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-start gap-3 flex-1">
               {/* Icon */}
-              <div className={`p-2.5 rounded-lg ${
+              <div className={`p-2.5 rounded-lg flex-shrink-0 ${
                 highRiskTodos.length > 0
-                  ? 'bg-red-500/20 text-red-300'
+                  ? 'bg-red-200 text-red-700'
                   : mediumRiskTodos.length > 0
-                  ? 'bg-yellow-500/20 text-yellow-300'
-                  : 'bg-blue-500/20 text-blue-300'
+                  ? 'bg-amber-200 text-amber-700'
+                  : 'bg-blue-200 text-blue-700'
               }`}>
                 {highRiskTodos.length > 0 ? (
                   <AlertTriangle size={20} />
@@ -111,32 +122,32 @@ export default function TodoReminder() {
 
               {/* Title & Summary */}
               <div className="flex-1">
-                <h3 className={`text-lg font-bold mb-1 ${
+                <h3 className={`text-base sm:text-lg font-bold mb-1 ${
                   highRiskTodos.length > 0
-                    ? 'text-red-300'
+                    ? 'text-red-900'
                     : mediumRiskTodos.length > 0
-                    ? 'text-yellow-300'
-                    : 'text-blue-300'
+                    ? 'text-amber-900'
+                    : 'text-blue-900'
                 }`}>
                   {highRiskTodos.length > 0
-                    ? `⚠️ ${highRiskTodos.length} Urgent Todo${highRiskTodos.length > 1 ? 's' : ''}`
+                    ? `${highRiskTodos.length} Urgent Task${highRiskTodos.length > 1 ? 's' : ''}`
                     : mediumRiskTodos.length > 0
-                    ? `📋 ${mediumRiskTodos.length} Pending Todo${mediumRiskTodos.length > 1 ? 's' : ''}`
-                    : `✓ ${todos.length} Todo${todos.length > 1 ? 's' : ''} To Complete`
+                    ? `${mediumRiskTodos.length} Pending Task${mediumRiskTodos.length > 1 ? 's' : ''}`
+                    : `${todos.length} Task${todos.length > 1 ? 's' : ''} Remaining`
                   }
                 </h3>
-                <p className={`text-sm ${
+                <p className={`text-xs sm:text-sm ${
                   highRiskTodos.length > 0
-                    ? 'text-red-200'
+                    ? 'text-red-700'
                     : mediumRiskTodos.length > 0
-                    ? 'text-yellow-200'
-                    : 'text-blue-200'
+                    ? 'text-amber-700'
+                    : 'text-blue-700'
                 }`}>
                   {highRiskTodos.length > 0
-                    ? 'These need immediate attention!'
+                    ? 'Need immediate attention'
                     : mediumRiskTodos.length > 0
-                    ? 'Review your schedule to stay on track'
-                    : 'Keep up the momentum with these tasks'
+                    ? 'Review your schedule'
+                    : 'Keep building momentum'
                   }
                 </p>
               </div>
@@ -146,12 +157,12 @@ export default function TodoReminder() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setDismissed(true)}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
                   highRiskTodos.length > 0
-                    ? 'hover:bg-red-500/20 text-red-300'
+                    ? 'hover:bg-red-200 text-red-700'
                     : mediumRiskTodos.length > 0
-                    ? 'hover:bg-yellow-500/20 text-yellow-300'
-                    : 'hover:bg-blue-500/20 text-blue-300'
+                    ? 'hover:bg-amber-200 text-amber-700'
+                    : 'hover:bg-blue-200 text-blue-700'
                 }`}
               >
                 <X size={18} />
@@ -171,17 +182,17 @@ export default function TodoReminder() {
                 <motion.div
                   key={todo.id}
                   layout
-                  className={`p-3 rounded-lg backdrop-blur-sm border bg-gradient-to-r ${getTodoRiskColor(todo.riskLevel)} flex items-center gap-3 text-sm`}
+                  className={`p-3 rounded-lg border flex items-center gap-3 text-sm ${getTodoRiskColor(todo.riskLevel)}`}
                 >
                   {/* Status Icon */}
                   <div className="flex-shrink-0">
-                    <CheckCircle2 size={16} className="text-white/60" />
+                    <CheckCircle2 size={16} className="opacity-60" />
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-semibold truncate">{todo.title}</p>
-                    <div className="flex items-center gap-2 text-white/70 text-xs mt-1">
+                    <p className="font-semibold truncate">{todo.title}</p>
+                    <div className="flex items-center gap-2 opacity-70 text-xs mt-1">
                       {todo.scheduledTime && (
                         <>
                           <Clock size={12} />
@@ -199,49 +210,42 @@ export default function TodoReminder() {
 
                   {/* Risk Badge */}
                   <div className="flex-shrink-0">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold text-white ${
-                      todo.riskLevel === 'high'
-                        ? 'bg-red-500/40'
-                        : todo.riskLevel === 'medium'
-                        ? 'bg-yellow-500/40'
-                        : 'bg-green-500/40'
-                    }`}>
-                      {todo.riskLevel === 'high' ? '🔴' : todo.riskLevel === 'medium' ? '🟡' : '🟢'}
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getRiskBadgeColor(todo.riskLevel)}`}>
+                      {todo.riskLevel === 'high' ? 'High' : todo.riskLevel === 'medium' ? 'Mid' : 'Low'}
                     </span>
                   </div>
                 </motion.div>
               ))}
 
               {todos.length > 3 && (
-                <p className="text-xs text-gray-400 italic text-center py-2">
-                  + {todos.length - 3} more todo{todos.length - 3 > 1 ? 's' : ''}
+                <p className="text-xs text-gray-600 text-center py-2">
+                  + {todos.length - 3} more task{todos.length - 3 > 1 ? 's' : ''}
                 </p>
               )}
             </motion.div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+          <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-300">
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setCollapsed(!collapsed)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                 collapsed
-                  ? 'bg-white/10 hover:bg-white/20 text-white'
-                  : 'bg-white/5 hover:bg-white/10 text-gray-300'
+                  ? 'bg-gray-700 text-white hover:bg-gray-800'
+                  : 'bg-gray-600 text-white hover:bg-gray-700'
               }`}
             >
-              {collapsed ? 'Show' : 'Hide'}
+              {collapsed ? 'Show Details' : 'Hide Details'}
             </motion.button>
 
             <motion.a
               href="#/todos"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark hover:shadow-lg transition-all flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
-              <Zap size={14} />
               View All Todos
             </motion.a>
           </div>

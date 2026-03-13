@@ -7,7 +7,7 @@ import { API_URL } from '../config/apiConfig'
 export default function ChatPage() {
   const { token } = useAuth()
   const [messages, setMessages] = useState([
-    { id: 1, text: "Yo, boss! I'm your personal AI assistant. Ask me anything about your habits, routines, todos, or just need some motivation? I got you covered! 💪", isAI: true, timestamp: new Date() }
+    { id: 1, text: "Hi! I'm your personal AI assistant. Ask me anything about your habits, routines, todos, or just need some motivation? I'm here to help!", isAI: true, timestamp: new Date() }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -92,30 +92,21 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-command-dark via-command-slate to-command-dark flex flex-col">
-      {/* Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-10 left-10 w-72 h-72 bg-command-cobalt/10 rounded-full blur-3xl"
-        />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-gray-900 dark:text-white flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
         <div className="max-w-4xl mx-auto w-full px-3 sm:px-4 py-3 sm:py-4 flex justify-between items-center gap-2">
           <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.location.hash = '#/dashboard'}
-              className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg text-command-gold hover:bg-glass-bg transition-colors flex-shrink-0"
+              className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0"
             >
               <ArrowLeft size={18} />
               <span className="hidden sm:inline">Back</span>
             </motion.button>
-            <h1 className="text-lg sm:text-2xl font-bold text-white truncate">Boss Chat</h1>
+            <h1 className="text-lg sm:text-2xl font-semibold text-gray-900 truncate">AI Assistant</h1>
           </div>
         </div>
       </div>
@@ -132,16 +123,16 @@ export default function ChatPage() {
               className={`flex mb-4 sm:mb-6 ${msg.isAI ? 'justify-start' : 'justify-end'}`}
             >
               <div
-                className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-2xl text-sm sm:text-base ${
+                className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base ${
                   msg.isAI
                     ? msg.isError
-                      ? 'bg-red-500/20 border border-red-500/50 text-red-200'
-                      : 'bg-gradient-to-r from-command-cobalt/30 to-command-gold/30 border border-command-gold/50 text-gray-100'
-                    : 'bg-command-gold text-command-dark font-semibold'
+                      ? 'bg-red-50 border border-red-200 text-red-700'
+                      : 'bg-blue-50 border border-blue-200 text-gray-900'
+                    : 'bg-blue-600 text-white font-semibold'
                 }`}
               >
                 <p className="leading-relaxed break-words">{msg.text}</p>
-                <p className={`text-xs mt-1 sm:mt-2 ${msg.isAI ? 'text-gray-400' : 'text-command-dark/70'}`}>
+                <p className={`text-xs mt-1 sm:mt-2 ${msg.isAI ? (msg.isError ? 'text-red-600' : 'text-blue-600') : 'text-blue-100'}`}>
                   {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
@@ -155,9 +146,9 @@ export default function ChatPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex justify-start mb-4 sm:mb-6"
           >
-            <div className="bg-gradient-to-r from-command-cobalt/30 to-command-gold/30 border border-command-gold/50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-2xl text-gray-100 flex items-center gap-2 text-sm sm:text-base">
-              <Loader size={16} className="animate-spin flex-shrink-0" />
-              <span>Boss is thinking...</span>
+            <div className="bg-blue-50 border border-blue-200 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-gray-900 flex items-center gap-2 text-sm sm:text-base">
+              <Loader size={16} className="animate-spin flex-shrink-0 text-blue-600" />
+              <span>AI is thinking...</span>
             </div>
           </motion.div>
         )}
@@ -166,13 +157,13 @@ export default function ChatPage() {
       </div>
 
       {/* Input Area */}
-      <div className="sticky bottom-0 z-40 backdrop-blur-xl border-t border-white/10 px-3 sm:px-4 py-3 sm:py-4 bg-gradient-to-t from-command-dark/90 to-transparent">
+      <div className="sticky bottom-0 z-40 border-t border-gray-200 px-3 sm:px-4 py-3 sm:py-4 bg-white">
         <div className="max-w-4xl mx-auto">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-3 p-2 sm:p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-xs sm:text-sm"
+              className="mb-3 p-2 sm:p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm"
             >
               {error}
             </motion.div>
@@ -183,16 +174,16 @@ export default function ChatPage() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask me anything, boss..."
+              placeholder="Ask me anything..."
               disabled={loading}
-              className="flex-1 min-w-0 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl bg-glass-bg border border-glass-border text-white placeholder-gray-500 focus:outline-none focus:border-command-gold transition-colors disabled:opacity-50"
+              className="flex-1 min-w-0 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50"
             />
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="submit"
               disabled={loading || !input.trim()}
-              className="px-3 sm:px-6 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-1 sm:gap-2 flex-shrink-0"
+              className="px-3 sm:px-6 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 flex-shrink-0"
             >
               <Send size={18} />
               <span className="hidden sm:inline">Send</span>
@@ -224,7 +215,7 @@ export default function ChatPage() {
                     )
                   }, 0)
                 }}
-                className="text-xs px-2 sm:px-3 py-1 sm:py-2 rounded-lg bg-command-gold/20 border border-command-gold/50 text-command-gold hover:bg-command-gold/30 transition-colors flex-shrink-0"
+                className="text-xs px-2 sm:px-3 py-1 sm:py-2 rounded-lg bg-blue-100 border border-blue-200 text-blue-700 hover:bg-blue-200 transition-colors flex-shrink-0"
               >
                 {suggestion}
               </motion.button>

@@ -180,6 +180,12 @@ const HabitCompletion = mongoose.model('HabitCompletion', habitCompletionSchema,
 let isConnected = false;
 
 const connectDB = async () => {
+  // Skip MongoDB connection if URI is not configured
+  if (!process.env.MONGODB_URI || process.env.MONGODB_URI.trim() === '') {
+    console.log('📂 MongoDB URI not configured, using file storage instead');
+    return Promise.resolve(false);
+  }
+
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       console.log('⏱️ MongoDB connection attempt timed out, continuing without DB');

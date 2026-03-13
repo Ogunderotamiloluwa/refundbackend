@@ -5,38 +5,7 @@ import { useAuth } from '../context/AuthContext'
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
-  const [theme, setTheme] = useState(() => {
-    // Check localStorage first, then check what's on the document
-    const saved = localStorage.getItem('theme')
-    if (saved) return saved
-    
-    // Check if document has dark or light class
-    if (document.documentElement.classList.contains('light')) return 'light'
-    if (document.documentElement.classList.contains('dark')) return 'dark'
-    
-    return 'dark' // default
-  })
-  const { logout } = useAuth()
-
-  useEffect(() => {
-    localStorage.setItem('theme', theme)
-    
-    // Remove both classes first
-    document.documentElement.classList.remove('dark', 'light')
-    
-    // Add the new theme class
-    if (theme === 'light') {
-      document.documentElement.classList.add('light')
-      document.body.style.backgroundColor = '#ffffff'
-      document.body.style.color = '#000000'
-    } else {
-      document.documentElement.classList.add('dark')
-      document.body.style.backgroundColor = '#121212'
-      document.body.style.color = '#ffffff'
-    }
-    
-    console.log('Theme applied:', theme, 'Classes:', document.documentElement.className)
-  }, [theme])
+  const { logout, theme, toggleTheme } = useAuth()
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', id: 1, href: '#/dashboard' },
@@ -60,17 +29,17 @@ export default function Sidebar() {
     <>
       {/* Logo */}
       <div className="flex items-center gap-3 mb-12">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-command-gold to-command-cobalt flex items-center justify-center text-command-dark font-bold">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold">
           PA
         </div>
         <div>
-          <div className="font-bold text-white text-lg">Boss</div>
-          <div className="text-xs text-gray-400">Command Center</div>
+          <div className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Boss</div>
+          <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Personal Assistant</div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2 overflow-y-auto max-h-[calc(100vh-400px)] pr-2">
+      <nav className={`flex-1 space-y-2 overflow-y-auto max-h-[calc(100vh-400px)] pr-2`}>
         {menuItems.map((item) => (
           <motion.a
             key={item.id}
@@ -78,21 +47,33 @@ export default function Sidebar() {
             whileHover={{ x: 4 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsOpen(false)}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:text-command-gold hover:bg-glass-bg transition-all group cursor-pointer"
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all group cursor-pointer ${
+              theme === 'dark'
+                ? 'text-gray-300 hover:text-blue-600 hover:bg-gray-800'
+                : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+            }`}
           >
-            <item.icon size={20} className="group-hover:text-command-cobalt transition-colors" />
+            <item.icon size={20} className="group-hover:text-blue-600 transition-colors" />
             <span className="text-sm font-medium">{item.label}</span>
           </motion.a>
         ))}
       </nav>
 
       {/* Theme Toggle */}
-      <div className="py-3 border-t border-glass-border border-b space-y-3">
+      <div className={`py-3 border-t border-b space-y-3 ${
+        theme === 'dark'
+          ? 'border-gray-700'
+          : 'border-gray-200'
+      }`}>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="w-full py-2 px-4 rounded-xl border border-glass-border text-gray-300 hover:text-command-gold hover:bg-glass-bg font-semibold text-sm transition-all flex items-center justify-center gap-2"
+          className={`w-full py-2 px-4 rounded-lg border font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            theme === 'dark'
+              ? 'border-gray-700 text-gray-300 hover:text-blue-600 hover:bg-gray-800'
+              : 'border-gray-300 text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+          }`}
         >
           {theme === 'dark' ? (
             <>
@@ -113,20 +94,44 @@ export default function Sidebar() {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full py-2 px-4 rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold text-sm hover:shadow-lg transition-all"
+          className={`w-full py-2 px-4 rounded-lg border font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            theme === 'dark'
+              ? 'border-blue-600 text-blue-400 hover:bg-blue-600/20'
+              : 'border-blue-600 text-blue-600 hover:bg-blue-50'
+          }`}
         >
           Upgrade Pro
         </motion.button>
+
+        {/* Theme Toggle Button */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={toggleTheme}
+          className={`w-full py-2.5 px-4 rounded-lg border font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            theme === 'dark'
+              ? 'border-indigo-600 text-indigo-400 hover:bg-indigo-600/20'
+              : 'border-indigo-200 text-indigo-600 hover:bg-indigo-50'
+          }`}
+        >
+          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+        </motion.button>
+
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleLogout}
-          className="w-full py-2 px-4 rounded-xl border border-glass-border text-red-400 hover:bg-red-500/20 font-semibold text-sm transition-all flex items-center justify-center gap-2"
+          className={`w-full py-2 px-4 rounded-lg border font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            theme === 'dark'
+              ? 'border-red-600 text-red-400 hover:bg-red-600/20'
+              : 'border-red-200 text-red-600 hover:bg-red-50'
+          }`}
         >
           <LogOut size={16} />
           Logout
         </motion.button>
-        <p className="text-xs text-gray-500 mt-4 text-center">© 2026 Boss PA</p>
+        <p className={`text-xs mt-4 text-center ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>© 2026 Boss PA</p>
       </div>
     </>
   )
@@ -136,13 +141,13 @@ export default function Sidebar() {
       {/* Mobile Toggle Button - Right Side */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 right-4 z-50 p-2 text-command-gold hover:bg-glass-bg rounded-lg transition-all"
+        className="lg:hidden fixed top-4 right-4 z-50 p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-all"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
       {/* Desktop Sidebar - Always Visible */}
-      <aside className="hidden lg:flex flex-col w-64 h-screen bg-gradient-to-b from-command-slate to-command-dark border-r border-glass-border backdrop-blur-xl p-6 flex-shrink-0">
+      <aside className={`hidden lg:flex flex-col w-64 h-screen bg-gradient-to-b ${theme === 'dark' ? 'from-gray-900 to-black' : 'from-white to-gray-50'} border-r ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'} p-6 flex-shrink-0`}>
         <SidebarContent />
       </aside>
 
@@ -162,7 +167,7 @@ export default function Sidebar() {
         initial={{ x: 300 }}
         animate={{ x: isOpen ? 0 : 300 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="lg:hidden fixed right-0 top-0 h-screen w-64 bg-gradient-to-b from-command-slate to-command-dark border-l border-glass-border backdrop-blur-xl z-40 p-6 flex flex-col"
+        className={`lg:hidden fixed right-0 top-0 h-screen w-64 bg-gradient-to-b ${theme === 'dark' ? 'from-gray-900 to-black' : 'from-white to-gray-50'} border-l ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'} z-40 p-6 flex flex-col`}
       >
         <SidebarContent />
       </motion.aside>

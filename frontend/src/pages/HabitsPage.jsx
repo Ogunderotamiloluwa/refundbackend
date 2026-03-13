@@ -131,31 +131,22 @@ export default function HabitsManagementPage() {
     : 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-command-dark via-command-slate to-command-dark">
-      {/* Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-10 left-10 w-72 h-72 bg-command-cobalt/10 rounded-full blur-3xl"
-        />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-gray-900 dark:text-white">
       {/* Header */}
-      <div className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-4 md:py-6 flex justify-between items-center gap-4">
-          <div className="flex items-center gap-2 md:gap-4 flex-1">
+          <div className="flex items-center gap-3 md:gap-4 flex-1">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.location.hash = '#/dashboard'}
-              className="flex items-center justify-center p-2 rounded-lg text-command-gold hover:bg-glass-bg transition-colors flex-shrink-0"
+              className="flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0"
             >
               <ArrowLeft size={18} className="md:w-5 md:h-5" />
             </motion.button>
             <div className="min-w-0">
-              <h1 className="text-xl md:text-3xl font-bold text-white truncate">Habits</h1>
-              <p className="text-xs md:text-sm text-gray-400 hidden sm:block">Track and manage your daily habits</p>
+              <h1 className="text-xl md:text-3xl font-semibold text-gray-900 truncate">Habits</h1>
+              <p className="text-xs md:text-sm text-gray-500 hidden sm:block">Build consistent habits and track progress</p>
             </div>
           </div>
           <motion.button
@@ -165,7 +156,7 @@ export default function HabitsManagementPage() {
               setEditingHabit(null)
               setIsModalOpen(true)
             }}
-            className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold hover:shadow-lg transition-all flex-shrink-0 text-sm md:text-base"
+            className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors flex-shrink-0 text-sm md:text-base"
           >
             <Plus size={16} className="md:w-5 md:h-5" />
             <span className="hidden sm:inline">New Habit</span>
@@ -175,7 +166,7 @@ export default function HabitsManagementPage() {
       </div>
 
       {/* Stats */}
-      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
         <StatsOverview />
 
         {/* Error Message */}
@@ -183,7 +174,7 @@ export default function HabitsManagementPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-3 md:p-4 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-sm"
+            className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
           >
             {error}
           </motion.div>
@@ -195,7 +186,7 @@ export default function HabitsManagementPage() {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="w-12 h-12 border-4 border-command-gold border-t-transparent rounded-full"
+              className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
             />
           </div>
         ) : habits.length === 0 ? (
@@ -205,14 +196,14 @@ export default function HabitsManagementPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-12 md:py-16"
           >
-            <div className="text-5xl md:text-6xl mb-4">●</div>
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-2">No habits yet</h2>
-            <p className="text-sm md:text-base text-gray-400 mb-6">Create your first habit to get started!</p>
+            <div className="text-5xl md:text-6xl mb-4">✓</div>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">No habits yet</h2>
+            <p className="text-sm md:text-base text-gray-500 mb-6">Create your first habit to get started!</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold hover:shadow-lg transition-all text-sm md:text-base"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors text-sm md:text-base"
             >
               <Plus size={18} className="md:w-5 md:h-5" />
               Create First Habit

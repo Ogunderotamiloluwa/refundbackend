@@ -101,80 +101,73 @@ export default function RoutinesPage() {
   const todayRoutines = routines.filter(r => r.repeatDays?.includes(today))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-command-dark via-command-slate to-command-dark">
-      {/* Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-10 left-10 w-72 h-72 bg-command-cobalt/10 rounded-full blur-3xl"
-        />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-gray-900 dark:text-white">
       {/* Header */}
-      <div className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-6xl mx-auto px-4 py-4 md:py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.hash = '#/dashboard'}
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm"
+              >
+                <ArrowLeft size={18} />
+                <span className="hidden sm:inline">Back</span>
+              </motion.button>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 truncate">Routines</h1>
+                <p className="text-sm text-gray-500 hidden sm:block">Organize and automate your daily schedule</p>
+              </div>
+            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.location.hash = '#/dashboard'}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-command-gold hover:bg-glass-bg transition-colors"
+              onClick={() => {
+                setEditingRoutine(null)
+                setIsModalOpen(true)
+              }}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors text-sm flex-shrink-0 w-full sm:w-auto"
             >
-              <ArrowLeft size={18} />
-              Back
+              <Plus size={18} />
+              <span>Add Routine</span>
             </motion.button>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Routines</h1>
-              <p className="text-sm text-gray-400">Organize your daily routines</p>
-            </div>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setEditingRoutine(null)
-              setIsModalOpen(true)
-            }}
-            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold hover:shadow-lg transition-all"
-          >
-            <Plus size={20} />
-            New Routine
-          </motion.button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-6 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-xl"
+            className="p-4 rounded-lg bg-white border border-gray-200"
           >
-            <div className="text-gray-400 text-sm mb-2">Total Routines</div>
-            <div className="text-4xl font-bold text-command-gold">{routines.length}</div>
+            <div className="text-sm text-gray-600 mb-2">Total Routines</div>
+            <div className="text-2xl sm:text-3xl font-bold text-blue-600">{routines.length}</div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-6 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-xl"
+            className="p-4 rounded-lg bg-white border border-gray-200"
           >
-            <div className="text-gray-400 text-sm mb-2">Today's Routines</div>
-            <div className="text-4xl font-bold text-command-cobalt">{todayRoutines.length}</div>
-            <div className="text-xs text-gray-500 mt-2">{today}'s schedule</div>
+            <div className="text-sm text-gray-600 mb-2">Today's Routines</div>
+            <div className="text-2xl sm:text-3xl font-bold text-indigo-600">{todayRoutines.length}</div>
+            <div className="text-xs text-gray-500 mt-1">{today}</div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-6 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-xl"
+            className="p-4 rounded-lg bg-white border border-gray-200"
           >
-            <div className="text-gray-400 text-sm mb-2">Total Tasks</div>
-            <div className="text-4xl font-bold text-green-400">
+            <div className="text-sm text-gray-600 mb-2">Total Tasks</div>
+            <div className="text-2xl sm:text-3xl font-bold text-green-600">
               {routines.reduce((sum, r) => sum + (r.tasks?.length || 0), 0)}
             </div>
           </motion.div>
@@ -185,7 +178,7 @@ export default function RoutinesPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200"
+            className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
           >
             {error}
           </motion.div>
@@ -193,11 +186,11 @@ export default function RoutinesPage() {
 
         {/* Loading */}
         {loading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-20">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="w-12 h-12 border-4 border-command-gold border-t-transparent rounded-full"
+              className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
             />
           </div>
         ) : routines.length === 0 ? (
@@ -205,19 +198,19 @@ export default function RoutinesPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-16"
+            className="text-center py-20"
           >
-            <div className="text-6xl mb-4">⏰</div>
-            <h2 className="text-2xl font-bold text-white mb-2">No routines yet</h2>
-            <p className="text-gray-400 mb-6">Create your first routine to organize your day!</p>
+            <div className="text-5xl sm:text-6xl mb-4">✓</div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-3">No routines yet</h2>
+            <p className="text-gray-500 text-base mb-6 max-w-md mx-auto">Create your first routine to automate your daily schedule!</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold hover:shadow-lg transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors"
             >
-              <Plus size={20} />
-              Create First Routine
+              <Plus size={18} />
+              Create Routine
             </motion.button>
           </motion.div>
         ) : (
@@ -225,11 +218,11 @@ export default function RoutinesPage() {
             {/* Today's Routines Section */}
             {todayRoutines.length > 0 && (
               <div className="mb-10">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <Clock size={20} className="text-command-gold" />
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Clock size={20} className="text-blue-600" />
                   Today's Schedule
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <AnimatePresence>
                     {todayRoutines.sort((a, b) => a.time.localeCompare(b.time)).map((routine) => (
                       <RoutineCard
@@ -246,8 +239,8 @@ export default function RoutinesPage() {
 
             {/* All Routines Section */}
             <div>
-              <h2 className="text-xl font-bold text-white mb-4">All Routines</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">All Routines</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence>
                   {routines.map((routine) => (
                     <RoutineCard

@@ -97,10 +97,6 @@ function DashboardContent() {
   }
 
   const fetchData = async () => {
-    // Create abort controller with timeout
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 5000)
-
     try {
       const headers = {
         'Authorization': `Bearer ${token}`,
@@ -108,9 +104,9 @@ function DashboardContent() {
       }
 
       const [sugRes, habitsRes, routinesRes] = await Promise.all([
-        fetch(`${API_URL}/api/suggestions`, { signal: controller.signal, headers }).catch(() => ({ ok: false })),
-        fetch(`${API_URL}/api/habits`, { signal: controller.signal, headers }).catch(() => ({ ok: false })),
-        fetch(`${API_URL}/api/routines`, { signal: controller.signal, headers }).catch(() => ({ ok: false })),
+        fetch(`${API_URL}/api/suggestions`, { headers }).catch(() => ({ ok: false })),
+        fetch(`${API_URL}/api/habits`, { headers }).catch(() => ({ ok: false })),
+        fetch(`${API_URL}/api/routines`, { headers }).catch(() => ({ ok: false })),
       ])
 
       if (sugRes.ok) {
@@ -129,8 +125,6 @@ function DashboardContent() {
       }
     } catch (err) {
       console.error('Data fetch error:', err)
-    } finally {
-      clearTimeout(timeoutId)
     }
   }
 
@@ -198,9 +192,20 @@ function DashboardContent() {
   }
 
   return (
-    <div className="flex h-screen bg-command-dark text-white font-inter overflow-hidden">
-      {/* Background */}
-      <GradientBackground />
+    <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 dark:text-white text-gray-900 font-inter overflow-hidden">
+      {/* Animated Background Gradients */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
+          transition={{ duration: 10, repeat: Infinity }}
+          className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-200/20 dark:bg-blue-900/20 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ x: [0, -50, 0], y: [0, -30, 0] }}
+          transition={{ duration: 12, repeat: Infinity }}
+          className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/20 rounded-full blur-3xl"
+        />
+      </div>
 
       {/* Sidebar */}
       <Sidebar />
@@ -238,9 +243,9 @@ function DashboardContent() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="p-6 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-xl"
+                    className="p-6 rounded-lg bg-white border border-gray-200"
                   >
-                    <h2 className="text-lg font-semibold text-white mb-4">AI Recommendations</h2>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">AI Recommendations</h2>
                     <div className="space-y-3">
                       {suggestions.map((suggestion, idx) => (
                         <motion.div
@@ -248,9 +253,9 @@ function DashboardContent() {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.1 }}
-                          className="p-4 rounded-xl border border-command-gold/30 bg-command-gold/5 hover:bg-command-gold/10 transition-all cursor-pointer group"
+                          className="p-4 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-all cursor-pointer group"
                         >
-                          <p className="text-sm text-white group-hover:text-command-gold transition-colors">
+                          <p className="text-sm text-gray-700 group-hover:text-blue-600 transition-colors">
                             {suggestion}
                           </p>
                         </motion.div>
@@ -267,15 +272,15 @@ function DashboardContent() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="p-6 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-xl"
+                  className="p-6 rounded-lg bg-white border border-gray-200"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-white">⚡ Active Habits</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">Active Habits</h2>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={createNewHabit}
-                      className="p-2 rounded-lg bg-command-gold/20 text-command-gold hover:bg-command-gold/30 transition-all"
+                      className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all"
                     >
                       <Plus size={18} />
                     </motion.button>
@@ -305,11 +310,11 @@ function DashboardContent() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                     whileHover={{ scale: 1.02 }}
-                    className="block p-5 rounded-2xl bg-gradient-to-br from-blue-600/20 to-blue-800/20 border border-blue-500/50 backdrop-blur-xl hover:border-blue-400/70 transition-all cursor-pointer"
+                    className="block p-5 rounded-lg bg-white border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
                   >
-                    <div className="text-2xl mb-2">📋</div>
-                    <h3 className="text-base font-semibold text-white">Todos</h3>
-                    <p className="text-xs text-gray-300">Live countdown & weather alerts</p>
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center mb-2 text-blue-700 font-bold text-sm">T</div>
+                    <h3 className="text-base font-semibold text-gray-900">Todos</h3>
+                    <p className="text-xs text-gray-600">Manage tasks & priorities</p>
                   </motion.a>
 
                   {/* Weather Link */}
@@ -319,11 +324,11 @@ function DashboardContent() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35 }}
                     whileHover={{ scale: 1.02 }}
-                    className="block p-5 rounded-2xl bg-gradient-to-br from-yellow-600/20 to-yellow-800/20 border border-yellow-500/50 backdrop-blur-xl hover:border-yellow-400/70 transition-all cursor-pointer"
+                    className="block p-5 rounded-lg bg-white border border-amber-200 hover:border-amber-400 hover:shadow-md transition-all cursor-pointer"
                   >
-                    <div className="text-2xl mb-2">●</div>
-                    <h3 className="text-base font-semibold text-white">Weather</h3>
-                    <p className="text-xs text-gray-300">Real-time conditions & alerts</p>
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center mb-2 text-amber-700 font-bold text-sm">W</div>
+                    <h3 className="text-base font-semibold text-gray-900">Weather</h3>
+                    <p className="text-xs text-gray-600">Real-time conditions & forecast</p>
                   </motion.a>
 
                   {/* Chat Link */}
@@ -333,11 +338,11 @@ function DashboardContent() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                     whileHover={{ scale: 1.02 }}
-                    className="block p-5 rounded-2xl bg-gradient-to-br from-purple-600/20 to-purple-800/20 border border-purple-500/50 backdrop-blur-xl hover:border-purple-400/70 transition-all cursor-pointer"
+                    className="block p-5 rounded-lg bg-white border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer"
                   >
-                    <div className="text-2xl mb-2">💬</div>
-                    <h3 className="text-base font-semibold text-white">Chat</h3>
-                    <p className="text-xs text-gray-300">Ask AI about routines & habits</p>
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mb-2 text-purple-700 font-bold text-sm">C</div>
+                    <h3 className="text-base font-semibold text-gray-900">Chat</h3>
+                    <p className="text-xs text-gray-600">Talk with your AI assistant</p>
                   </motion.a>
                 </div>
               </div>
@@ -355,14 +360,6 @@ function DashboardContent() {
 // Main App with routing
 export default function App() {
   const [currentPage, setCurrentPage] = useState('') // Always start empty (landing page)
-
-  // Initialize theme on app load
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark'
-    document.documentElement.classList.remove('dark', 'light')
-    document.documentElement.classList.add(savedTheme)
-    console.log('Theme initialized:', savedTheme)
-  }, [])
 
   // Handle initial hash on first load
   useEffect(() => {
@@ -397,11 +394,11 @@ function AppRouter({ currentPage }) {
   if (loading) {
     console.log('⏳ Auth still loading, showing spinner...')
     return (
-      <div className="w-full h-screen bg-gradient-to-br from-command-dark via-command-slate to-command-dark flex items-center justify-center">
+      <div className="w-full h-screen bg-white flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="w-12 h-12 border-4 border-command-gold border-t-transparent rounded-full"
+          className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
         />
       </div>
     )

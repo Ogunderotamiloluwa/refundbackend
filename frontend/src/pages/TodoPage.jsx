@@ -63,8 +63,13 @@ export default function TodoPage() {
   }
 
   const handleAddTodo = async (formData) => {
+    let token = null
     try {
-      const token = localStorage.getItem('token')
+      token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('No authentication token found')
+      }
+
       const response = await fetch(`${API_URL}/api/todos`, {
         method: 'POST',
         headers: {
@@ -74,24 +79,35 @@ export default function TodoPage() {
         body: JSON.stringify(formData)
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        setTodos([...todos, data.todo])
-        setIsModalOpen(false)
-        setEditingTodo(null)
-        addNotification({
-          type: 'success',
-          title: 'Todo Created',
-          message: `${formData.title} added to your todos`
-        })
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to create todo (${response.status})`)
       }
+
+      const data = await response.json()
+      
+      // Close modal first
+      setIsModalOpen(false)
+      setEditingTodo(null)
+      
+      // Show notification
+      addNotification({
+        type: 'success',
+        title: 'Todo Created',
+        message: `${formData.title} added to your todos`
+      })
+      
+      // Reload all todos from backend
+      await loadTodos()
+      
     } catch (err) {
+      console.error('❌ Error creating todo:', err)
       addNotification({
         type: 'alert',
         title: 'Error',
-        message: 'Failed to create todo'
+        message: err.message || 'Failed to create todo'
       })
-      throw new Error('Failed to create todo')
+      throw new Error(err.message || 'Failed to create todo')
     }
   }
 
@@ -202,33 +218,24 @@ export default function TodoPage() {
   const highRiskTodos = todos.filter(t => t.riskLevel === 'high' && !t.completed)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-command-dark via-command-slate to-command-dark">
-      {/* Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-10 left-10 w-72 h-72 bg-command-cobalt/10 rounded-full blur-3xl"
-        />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-gray-900 dark:text-white">
       {/* Header */}
-      <div className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 py-4 md:py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex items-center gap-2 md:gap-4 flex-shrink-0 w-full md:w-auto">
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.hash = '#/dashboard'}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-command-gold hover:bg-glass-bg transition-colors flex-shrink-0"
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm"
               >
                 <ArrowLeft size={18} />
                 <span className="hidden sm:inline">Back</span>
               </motion.button>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl md:text-3xl font-bold text-white truncate">My Todos</h1>
-                <p className="text-xs md:text-sm text-gray-400 mt-1 hidden sm:block">Track your tasks with location and time awareness</p>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">Tasks</h1>
+                <p className="text-sm text-gray-500 hidden sm:block">Manage your daily tasks and reminders</p>
               </div>
             </div>
             <motion.button
@@ -238,65 +245,64 @@ export default function TodoPage() {
                 setEditingTodo(null)
                 setIsModalOpen(true)
               }}
-              className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-xl bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark font-semibold hover:shadow-lg transition-all text-sm md:text-base flex-shrink-0"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors text-sm"
             >
-              <Plus size={18} className="md:w-5 md:h-5" />
-              <span>Add</span>
-              <span className="hidden sm:inline">Todo</span>
+              <Plus size={18} />
+              <span>Add Task</span>
             </motion.button>
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="sticky top-20 z-30 backdrop-blur-xl border-b border-white/10 py-4">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-            <div className="text-2xl font-bold text-command-gold">{pendingTodos.length}</div>
-            <div className="text-xs text-gray-400">Pending Todos</div>
+      <div className="bg-gray-50 border-b border-gray-200 py-3 sm:py-4">
+        <div className="max-w-4xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div className="p-3 sm:p-4 rounded-lg bg-white border border-gray-200">
+            <div className="text-xl sm:text-2xl font-bold text-gray-900">{pendingTodos.length}</div>
+            <div className="text-xs text-gray-600 uppercase tracking-wide">Active</div>
           </div>
-          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-            <div className="text-2xl font-bold text-green-400">{completedTodos.length}</div>
-            <div className="text-xs text-gray-400">Completed</div>
+          <div className="p-3 sm:p-4 rounded-lg bg-white border border-gray-200">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">{completedTodos.length}</div>
+            <div className="text-xs text-gray-600 uppercase tracking-wide">Completed</div>
           </div>
-          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-            <div className="text-2xl font-bold text-red-400">{highRiskTodos.length}</div>
-            <div className="text-xs text-gray-400">High Risk</div>
+          <div className="p-3 sm:p-4 rounded-lg bg-white border border-gray-200">
+            <div className="text-xl sm:text-2xl font-bold text-red-600">{highRiskTodos.length}</div>
+            <div className="text-xs text-gray-600 uppercase tracking-wide">Urgent</div>
           </div>
           {userLocation && (
-            <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-              <div className="text-xs text-command-gold">📍 Location Active</div>
-              <div className="text-xs text-gray-400 mt-1">Real-time tracking</div>
+            <div className="p-3 sm:p-4 rounded-lg bg-white border border-gray-200">
+              <div className="text-sm font-semibold text-blue-600">Location</div>
+              <div className="text-xs text-gray-600 uppercase tracking-wide mt-1">Active</div>
             </div>
           )}
         </div>
       </div>
 
       {/* Content */}
-      <div className="relative z-20 max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader className="animate-spin text-command-gold" size={40} />
+          <div className="flex items-center justify-center py-16 sm:py-20">
+            <Loader className="animate-spin text-gray-400" size={40} />
           </div>
         ) : error ? (
-          <div className="text-center py-20">
-            <p className="text-red-400">{error}</p>
+          <div className="text-center py-16 sm:py-20">
+            <p className="text-red-600 text-sm sm:text-base">{error}</p>
           </div>
         ) : (
           <>
             {/* Pending Todos */}
             {pendingTodos.length > 0 ? (
               <div>
-                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                  Active Todos
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex flex-col sm:flex-row sm:items-center sm:gap-3">
+                  Active Tasks
                   {highRiskTodos.length > 0 && (
-                    <span className="flex items-center gap-1 ml-auto text-sm bg-red-500/20 text-red-300 px-3 py-1 rounded-full">
+                    <span className="flex items-center gap-2 text-xs sm:text-sm bg-red-50 text-red-700 px-3 py-1.5 sm:py-2 rounded-full mt-2 sm:mt-0 w-fit border border-red-200">
                       <AlertTriangle size={14} />
-                      {highRiskTodos.length} High Risk
+                      {highRiskTodos.length} Urgent
                     </span>
                   )}
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-8">
                   <AnimatePresence>
                     {pendingTodos.map(todo => (
                       <TodoCard
@@ -312,36 +318,36 @@ export default function TodoPage() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-20">
-                <div className="text-6xl mb-4">🎉</div>
-                <p className="text-gray-400 text-lg">No pending todos! You're all set, boss.</p>
+              <div className="text-center py-16 sm:py-20">
+                <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">✓</div>
+                <p className="text-gray-500 text-base sm:text-lg">No active tasks. Great work!</p>
               </div>
             )}
 
             {/* Completed Todos */}
             {completedTodos.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-gray-400 mb-4 flex items-center gap-2">
-                  <CheckCircle2 size={20} className="text-green-400" />
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <CheckCircle2 size={20} className="text-green-600" />
                   Completed ({completedTodos.length})
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <AnimatePresence>
                     {completedTodos.map(todo => (
                       <motion.div
                         key={todo.id}
                         initial={{ opacity: 0 }}
                         exit={{ opacity: 0 }}
-                        className="p-4 rounded-xl bg-white/5 border border-green-500/30 opacity-60"
+                        className="p-4 rounded-lg bg-gray-50 border border-gray-200"
                       >
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="text-sm font-semibold text-gray-300 line-through">{todo.title}</h3>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Completed at {new Date(todo.completedAt).toLocaleTimeString()}
+                            <h3 className="text-sm font-medium text-gray-500 line-through">{todo.title}</h3>
+                            <p className="text-xs text-gray-400 mt-2">
+                              Completed {new Date(todo.completedAt).toLocaleDateString()}
                             </p>
                           </div>
-                          <CheckCircle2 size={20} className="text-green-400" />
+                          <CheckCircle2 size={18} className="text-green-600 flex-shrink-0" />
                         </div>
                       </motion.div>
                     ))}
@@ -354,15 +360,19 @@ export default function TodoPage() {
       </div>
 
       {/* Modal */}
-      <TodoModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-          setEditingTodo(null)
-        }}
-        onSave={editingTodo ? handleEditTodo : handleAddTodo}
-        todo={editingTodo}
-      />
+      <AnimatePresence>
+        {isModalOpen && (
+          <TodoModal
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false)
+              setEditingTodo(null)
+            }}
+            onSave={editingTodo ? handleEditTodo : handleAddTodo}
+            todo={editingTodo}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

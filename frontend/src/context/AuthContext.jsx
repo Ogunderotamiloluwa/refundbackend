@@ -7,6 +7,30 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [theme, setTheme] = useState(() => {
+    // Initialize from localStorage
+    return localStorage.getItem('app-theme') || 'light'
+  })
+
+  // Apply theme whenever it changes
+  useEffect(() => {
+    localStorage.setItem('app-theme', theme)
+    
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('light')
+    } else {
+      document.documentElement.classList.add('light')
+      document.documentElement.classList.remove('dark')
+    }
+    
+    console.log('✅ Theme applied:', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light'
+    setTheme(newTheme)
+  }
 
   // Verify token validity with backend
   const verifyToken = async (authToken) => {
@@ -102,7 +126,7 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!token && !!user
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, isAuthenticated, login, logout, theme, toggleTheme }}>
       {children}
     </AuthContext.Provider>
   )

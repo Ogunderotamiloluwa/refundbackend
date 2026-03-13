@@ -163,7 +163,7 @@ class NotificationService {
   async subscribeToPushNotifications(token) {
     try {
       if (!this.serviceWorkerRegistration) {
-        console.warn('⚠️ Service Worker not registered');
+        console.log('Service Worker not registered');
         return false;
       }
 
@@ -171,7 +171,7 @@ class NotificationService {
       const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
       if (!vapidPublicKey) {
-        console.warn('⚠️ VAPID public key not configured');
+        console.log('Push notifications not configured - using local notifications only');
         return false;
       }
 
@@ -186,20 +186,19 @@ class NotificationService {
         };
 
         subscription = await this.serviceWorkerRegistration.pushManager.subscribe(subscriptionOptions);
-        console.log('✅ New push subscription created');
+        console.log('Push subscription created');
       } else {
-        console.log('✅ Using existing push subscription');
+        console.log('Using existing push subscription');
       }
 
       // Save subscription to backend
       await this.savePushSubscription(subscription, token);
 
-      console.log('✅ Push notification subscription successful');
+      console.log('Push notification subscription successful');
       return true;
     } catch (error) {
-      console.error('❌ Push subscription failed:', error.message);
-      // Push notifications are optional - don't block if they fail
-      return true;
+      console.log('Push subscription unavailable:', error.message);
+      return false;
     }
   }
 

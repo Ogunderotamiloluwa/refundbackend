@@ -207,32 +207,23 @@ export default function WeatherPage() {
   const alertLevel = weather ? getAlertLevel(weather.weatherCode) : 'neutral'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-command-dark via-command-slate to-command-dark">
-      {/* Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-10 left-10 w-72 h-72 bg-command-cobalt/10 rounded-full blur-3xl"
-        />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-gray-900 dark:text-white">
       {/* Header */}
-      <div className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10">
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4">
         <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.location.hash = '#/dashboard'}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-command-gold hover:bg-glass-bg transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             >
               <ArrowLeft size={18} />
               Back
             </motion.button>
             <div>
-              <h1 className="text-3xl font-bold text-white">Weather & Forecast</h1>
-              <p className="text-sm text-gray-400 mt-1">Live weather with accurate forecasts</p>
+              <h1 className="text-3xl font-semibold text-gray-900">Weather & Forecast</h1>
+              <p className="text-sm text-gray-500 mt-1">Live weather with accurate forecasts</p>
             </div>
           </div>
           <motion.button
@@ -240,7 +231,7 @@ export default function WeatherPage() {
             whileTap={{ scale: 0.95 }}
             onClick={handleRefresh}
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-command-gold/20 text-command-gold hover:bg-command-gold/30 transition-all disabled:opacity-50 font-semibold"
+            className="px-4 py-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all disabled:opacity-50 font-semibold"
           >
             {loading ? 'Updating...' : 'Refresh'}
           </motion.button>
@@ -256,14 +247,14 @@ export default function WeatherPage() {
           className="mb-8"
         >
           <div className="relative">
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-glass-bg border border-glass-border focus-within:border-command-gold/50 focus-within:ring-1 focus-within:ring-command-gold/30 transition-all">
-              <Search size={18} className="text-command-gold" />
+            <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-white border border-gray-300 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+              <Search size={18} className="text-blue-600" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => handleLocationSearch(e.target.value)}
                 placeholder="Search for a city or location..."
-                className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none"
+                className="flex-1 bg-transparent text-gray-900 placeholder-gray-400 outline-none"
               />
             </div>
 
@@ -272,20 +263,20 @@ export default function WeatherPage() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-glass-bg border border-glass-border rounded-xl backdrop-blur-xl overflow-hidden z-50"
+                className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg overflow-hidden z-50 shadow-lg"
               >
                 {searchResults.map((result, idx) => (
                   <motion.button
                     key={idx}
                     onClick={() => selectLocation(result)}
-                    whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-                    className="w-full text-left px-4 py-3 border-b border-white/10 last:border-b-0 hover:bg-white/10 transition-colors"
+                    whileHover={{ backgroundColor: '#f3f4f6' }}
+                    className="w-full text-left px-4 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
                   >
-                    <div className="text-white font-semibold">
-                      <MapPin size={14} className="inline mr-2 text-command-gold" />
+                    <div className="text-gray-900 font-semibold">
+                      <MapPin size={14} className="inline mr-2 text-blue-600" />
                       {result.name}
                     </div>
-                    <div className="text-xs text-gray-400 ml-6">
+                    <div className="text-xs text-gray-500 ml-6">
                       {result.admin1 && `${result.admin1}, `}{result.country}
                     </div>
                   </motion.button>
@@ -294,7 +285,7 @@ export default function WeatherPage() {
             )}
           </div>
           {selectedLocation && (
-            <p className="text-sm text-gray-400 mt-2">📍 {selectedLocation.name}</p>
+            <p className="text-sm text-gray-600 mt-2">📍 {selectedLocation.name}</p>
           )}
         </motion.div>
 
@@ -308,19 +299,19 @@ export default function WeatherPage() {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="w-16 h-16 border-4 border-command-gold border-t-transparent rounded-full mx-auto mb-4"
+                className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"
               />
-              <p className="text-gray-400 text-lg">Fetching weather data...</p>
+              <p className="text-gray-600 text-lg">Fetching weather data...</p>
             </div>
           </motion.div>
         ) : error ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-8 rounded-2xl bg-red-500/20 border border-red-500/50 text-center"
+            className="p-8 rounded-lg bg-red-50 border border-red-200 text-center"
           >
-            <AlertTriangle className="mx-auto mb-4 text-red-400" size={40} />
-            <p className="text-red-300 text-lg font-semibold">{error}</p>
+            <AlertTriangle className="mx-auto mb-4 text-red-600" size={40} />
+            <p className="text-red-700 text-lg font-semibold">{error}</p>
           </motion.div>
         ) : weather ? (
           <div className="space-y-6">
@@ -328,20 +319,20 @@ export default function WeatherPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`p-8 rounded-3xl bg-gradient-to-br ${alertColors[alertLevel]} border border-white/20 backdrop-blur-xl`}
+              className="p-8 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 {/* Left - Main Info */}
                 <div className="flex flex-col items-center justify-center">
                   <div className="text-8xl mb-4">{getWeatherIcon(weather.weatherCode)}</div>
                   <div className="text-center">
-                    <div className="text-7xl font-bold text-white mb-2">
+                    <div className="text-7xl font-bold text-gray-900 mb-2">
                       {Math.round(weather.temperature)}°
                     </div>
-                    <div className="text-2xl font-semibold text-white/90 mb-2">
+                    <div className="text-2xl font-semibold text-gray-700 mb-2">
                       {weather.condition}
                     </div>
-                    <div className="text-base text-white/80">
+                    <div className="text-base text-gray-600">
                       Feels like {Math.round(weather.apparentTemp)}°C
                     </div>
                   </div>
@@ -349,28 +340,28 @@ export default function WeatherPage() {
 
                 {/* Right - Detailed Metrics */}
                 <div className="grid grid-cols-2 gap-4">
-                  <motion.div whileHover={{ scale: 1.05 }} className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-lg text-center">
-                    <Droplets className="mx-auto mb-2 text-blue-300" size={24} />
-                    <div className="text-sm text-white/70 mb-2">Humidity</div>
-                    <div className="text-3xl font-bold text-white">{weather.humidity}%</div>
+                  <motion.div whileHover={{ scale: 1.05 }} className="p-6 rounded-lg bg-white border border-blue-100 text-center">
+                    <Droplets className="mx-auto mb-2 text-blue-600" size={24} />
+                    <div className="text-sm text-gray-600 mb-2">Humidity</div>
+                    <div className="text-3xl font-bold text-gray-900">{weather.humidity}%</div>
                   </motion.div>
 
-                  <motion.div whileHover={{ scale: 1.05 }} className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-lg text-center">
-                    <Wind className="mx-auto mb-2 text-cyan-300" size={24} />
-                    <div className="text-sm text-white/70 mb-2">Wind Speed</div>
-                    <div className="text-3xl font-bold text-white">{Math.round(weather.windSpeed)} km/h</div>
+                  <motion.div whileHover={{ scale: 1.05 }} className="p-6 rounded-lg bg-white border border-blue-100 text-center">
+                    <Wind className="mx-auto mb-2 text-blue-600" size={24} />
+                    <div className="text-sm text-gray-600 mb-2">Wind Speed</div>
+                    <div className="text-3xl font-bold text-gray-900">{Math.round(weather.windSpeed)} km/h</div>
                   </motion.div>
 
-                  <motion.div whileHover={{ scale: 1.05 }} className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-lg text-center">
-                    <Cloud className="mx-auto mb-2 text-gray-300" size={24} />
-                    <div className="text-sm text-white/70 mb-2">Cloud Cover</div>
-                    <div className="text-3xl font-bold text-white">{weather.cloudCover}%</div>
+                  <motion.div whileHover={{ scale: 1.05 }} className="p-6 rounded-lg bg-white border border-blue-100 text-center">
+                    <Cloud className="mx-auto mb-2 text-blue-600" size={24} />
+                    <div className="text-sm text-gray-600 mb-2">Cloud Cover</div>
+                    <div className="text-3xl font-bold text-gray-900">{weather.cloudCover}%</div>
                   </motion.div>
 
-                  <motion.div whileHover={{ scale: 1.05 }} className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-lg text-center">
-                    <Eye className="mx-auto mb-2 text-yellow-300" size={24} />
-                    <div className="text-sm text-white/70 mb-2">Visibility</div>
-                    <div className="text-3xl font-bold text-white">{Math.round(weather.visibility)} km</div>
+                  <motion.div whileHover={{ scale: 1.05 }} className="p-6 rounded-lg bg-white border border-blue-100 text-center">
+                    <Eye className="mx-auto mb-2 text-blue-600" size={24} />
+                    <div className="text-sm text-gray-600 mb-2">Visibility</div>
+                    <div className="text-3xl font-bold text-gray-900">{Math.round(weather.visibility)} km</div>
                   </motion.div>
                 </div>
               </div>
@@ -381,19 +372,19 @@ export default function WeatherPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-6 rounded-2xl border backdrop-blur-xl ${
+                className={`p-6 rounded-lg border ${
                   alertLevel === 'danger'
-                    ? 'bg-red-500/20 border-red-500/50'
-                    : 'bg-yellow-500/20 border-yellow-500/50'
+                    ? 'bg-red-50 border-red-200'
+                    : 'bg-amber-50 border-amber-200'
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <AlertTriangle className={alertLevel === 'danger' ? 'text-red-400' : 'text-yellow-400'} size={32} />
+                  <AlertTriangle className={alertLevel === 'danger' ? 'text-red-600' : 'text-amber-600'} size={32} />
                   <div>
-                    <h3 className={`text-xl font-bold mb-2 ${alertLevel === 'danger' ? 'text-red-300' : 'text-yellow-300'}`}>
+                    <h3 className={`text-xl font-bold mb-2 ${alertLevel === 'danger' ? 'text-red-700' : 'text-amber-700'}`}>
                       Weather Alert
                     </h3>
-                    <p className={`text-lg ${alertLevel === 'danger' ? 'text-red-200' : 'text-yellow-200'}`}>
+                    <p className={`text-lg ${alertLevel === 'danger' ? 'text-red-600' : 'text-amber-600'}`}>
                       {weather.raining && 'Rain detected'}
                       {weather.snowing && 'Snow - Drive carefully'}
                       {weather.cloudCover > 80 && 'Heavy cloud cover'}
@@ -408,33 +399,33 @@ export default function WeatherPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-6 rounded-2xl bg-glass-bg border border-glass-border backdrop-blur-xl"
+                className="p-6 rounded-lg bg-white border border-gray-200"
               >
-                <h3 className="text-2xl font-bold text-white mb-6">📅 7-Day Forecast</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-6">7-Day Forecast</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {forecast.slice(0, 7).map((day, idx) => (
                     <motion.div
                       key={idx}
                       whileHover={{ scale: 1.05 }}
-                      className="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center"
+                      className="p-4 rounded-lg bg-white border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all text-center"
                     >
-                      <div className="text-sm text-gray-400 mb-2">
+                      <div className="text-sm text-gray-600 mb-2">
                         {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                       </div>
                       <div className="text-4xl mb-3">{getWeatherIcon(day.weatherCode)}</div>
-                      <div className="text-sm text-gray-300 mb-3">{day.condition}</div>
+                      <div className="text-sm text-gray-700 mb-3">{day.condition}</div>
                       <div className="flex justify-center gap-2 mb-3">
-                        <div className="p-2 rounded-lg bg-red-500/20">
-                          <div className="text-xs text-gray-400">Max</div>
-                          <div className="text-lg font-bold text-white">{Math.round(day.maxTemp)}°</div>
+                        <div className="p-2 rounded-lg bg-red-50 border border-red-100">
+                          <div className="text-xs text-gray-600">Max</div>
+                          <div className="text-lg font-bold text-gray-900">{Math.round(day.maxTemp)}°</div>
                         </div>
-                        <div className="p-2 rounded-lg bg-blue-500/20">
-                          <div className="text-xs text-gray-400">Min</div>
-                          <div className="text-lg font-bold text-white">{Math.round(day.minTemp)}°</div>
+                        <div className="p-2 rounded-lg bg-blue-50 border border-blue-100">
+                          <div className="text-xs text-gray-600">Min</div>
+                          <div className="text-lg font-bold text-gray-900">{Math.round(day.minTemp)}°</div>
                         </div>
                       </div>
                       {day.precipitation > 0 && (
-                        <div className="text-xs text-blue-300">
+                        <div className="text-xs text-blue-600">
                           💧 {Math.round(day.precipitation)}mm
                         </div>
                       )}

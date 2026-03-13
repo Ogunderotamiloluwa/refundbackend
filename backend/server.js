@@ -18,6 +18,11 @@ connectDB()
     console.warn('⚠️ MongoDB connection failed, using file storage as fallback:', err.message);
   });
 
+// Log connection attempt details
+console.log('🔄 MongoDB Connection Attempt:');
+console.log('   URI configured:', !!process.env.MONGODB_URI);
+console.log('   URI starts with:', process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 30) + '...' : 'NOT SET');
+
 // Initialize persistent storage on startup
 storage.init();
 console.log('✅ Persistent storage initialized');

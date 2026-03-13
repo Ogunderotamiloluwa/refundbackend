@@ -12,7 +12,7 @@ const getAPIUrl = () => {
   
   // Development environment - use localhost
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost:5004';
+    return 'http://localhost:5000';
   }
   
   // Default fallback to Render

@@ -599,7 +599,13 @@ const getTodos = async (req, res) => {
     
     // Fallback to file storage
     console.log('📂 Fetching todos from file storage');
-    const userTodos = todos.filter(t => t.userId === userId);
+    const userTodos = todos.filter(t => t.userId === userId).map(todo => ({
+      ...todo,
+      // Migrate old field names to new format for backward compatibility
+      scheduledTime: todo.scheduledTime || (todo.dueDate && todo.dueTime ? new Date(`${todo.dueDate} ${todo.dueTime}`).toISOString() : new Date().toISOString()),
+      riskLevel: todo.riskLevel || (todo.priority ? (todo.priority === 'high' ? 'high' : todo.priority === 'low' ? 'low' : 'medium') : 'low'),
+      location: todo.location || todo.category || ''
+    }));
     res.json({ 
       message: 'Todos retrieved',
       todos: userTodos
@@ -612,7 +618,7 @@ const getTodos = async (req, res) => {
 
 const createTodo = async (req, res) => {
   try {
-    const { title, description, dueDate, dueTime, priority, category } = req.body;
+    const { title, description, scheduledTime, location, riskLevel } = req.body;
 
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
@@ -624,10 +630,9 @@ const createTodo = async (req, res) => {
       userId: req.userId,
       title,
       description: description || '',
-      dueDate: dueDate || new Date(),
-      dueTime: dueTime || '09:00',
-      priority: priority || 'medium',
-      category: category || 'General',
+      scheduledTime: scheduledTime ? new Date(scheduledTime).toISOString() : new Date().toISOString(),
+      location: location || '',
+      riskLevel: riskLevel || 'low',
       completed: false
     };
     

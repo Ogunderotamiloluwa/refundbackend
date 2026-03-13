@@ -49,40 +49,38 @@ export default function TodoModal({ isOpen, onClose, onSave, todo = null }) {
     }
   }
 
-  if (!isOpen) return null
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onClick={onClose}
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         onClick={e => e.stopPropagation()}
-        className="w-full max-w-md bg-glass-bg border border-glass-border backdrop-blur-xl rounded-2xl overflow-hidden"
+        className="w-full max-w-md bg-white rounded-xl overflow-hidden shadow-xl"
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-command-gold/20 to-command-cobalt/20 px-6 py-4 flex justify-between items-center border-b border-white/10">
-          <h2 className="text-xl font-bold text-white">
-            {todo ? '✏️ Edit Todo' : '📝 Create New Todo'}
+        <div className="bg-gray-50 px-6 py-5 flex justify-between items-center border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {todo ? 'Edit Task' : 'Create New Task'}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
           >
-            <X size={20} className="text-gray-400" />
+            <X size={20} className="text-gray-500" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto space-y-5">
+        <div className="p-6 max-h-[80vh] overflow-y-auto space-y-5">
           {error && (
-            <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm flex items-center gap-2">
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-3">
               <AlertTriangle size={16} />
               {error}
             </div>
@@ -90,8 +88,8 @@ export default function TodoModal({ isOpen, onClose, onSave, todo = null }) {
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-semibold text-white mb-2">
-              📌 Title <span className="text-red-400">*</span>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Task Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -99,14 +97,14 @@ export default function TodoModal({ isOpen, onClose, onSave, todo = null }) {
               value={formData.title}
               onChange={handleInputChange}
               placeholder="What do you need to do?"
-              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-command-gold focus:outline-none transition-all"
+              className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-white mb-2">
-              📝 Description
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Description
             </label>
             <textarea
               name="description"
@@ -114,30 +112,30 @@ export default function TodoModal({ isOpen, onClose, onSave, todo = null }) {
               onChange={handleInputChange}
               placeholder="Add any notes or details..."
               rows="3"
-              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-command-gold focus:outline-none transition-all resize-none"
+              className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none transition-all resize-none"
             />
           </div>
 
           {/* Scheduled Time */}
           <div>
-            <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2">
-              <Clock size={16} className="text-command-gold" />
-              Scheduled Time <span className="text-red-400">*</span>
+            <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <Clock size={16} className="text-blue-600" />
+              Due Date & Time <span className="text-red-500">*</span>
             </label>
             <input
               type="datetime-local"
               name="scheduledTime"
               value={formData.scheduledTime.slice(0, 16)}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-command-gold focus:outline-none transition-all"
+              className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
             />
-            <p className="text-xs text-gray-400 mt-2">Set when you want to be reminded about this todo</p>
+            <p className="text-xs text-gray-500 mt-1">Set when you want to be reminded about this task</p>
           </div>
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2">
-              <MapPin size={16} className="text-command-gold" />
+            <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <MapPin size={16} className="text-blue-600" />
               Location
             </label>
             <input
@@ -145,59 +143,56 @@ export default function TodoModal({ isOpen, onClose, onSave, todo = null }) {
               name="location"
               value={formData.location}
               onChange={handleInputChange}
-              placeholder="e.g., Lekki Road, Office, Home"
-              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-command-gold focus:outline-none transition-all"
+              placeholder="e.g., Office, Home, Downtown"
+              className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
             />
-            <p className="text-xs text-gray-400 mt-2">Where do you need to go? (for traffic/route alerts)</p>
+            <p className="text-xs text-gray-500 mt-1">Where do you need to go?</p>
           </div>
 
           {/* Risk Level */}
           <div>
-            <label className="block text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <AlertTriangle size={16} className="text-command-gold" />
-              Risk Level
-            </label>
-            <div className="grid grid-cols-3 gap-3">
+            <label className="block text-sm font-semibold text-gray-900 mb-3">Priority Level</label>
+            <div className="grid grid-cols-3 gap-2">
               {RISK_LEVELS.map(level => (
                 <button
                   key={level.value}
                   onClick={() => setFormData(prev => ({ ...prev, riskLevel: level.value }))}
-                  className={`p-3 rounded-lg border-2 transition-all text-center ${
+                  className={`px-3 py-2.5 rounded-lg font-medium text-sm transition-all border-2 ${
                     formData.riskLevel === level.value
-                      ? `border-${level.color}-500 bg-${level.color}-500/20`
-                      : 'border-white/10 bg-white/5 hover:bg-white/10'
+                      ? level.value === 'low' ? 'border-green-500 bg-green-50 text-green-700'
+                        : level.value === 'medium' ? 'border-amber-500 bg-amber-50 text-amber-700'
+                        : 'border-red-500 bg-red-50 text-red-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  <div className="text-2xl mb-1">{level.icon}</div>
-                  <div className="text-xs font-semibold text-gray-300">{level.label}</div>
+                  {level.label}
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-400 mt-2">
-              {formData.riskLevel === 'high' && '🚨 High risk: Expected traffic/dangers - check weather & road conditions'}
-              {formData.riskLevel === 'medium' && '⚠️ Medium risk: Check conditions before leaving'}
-              {formData.riskLevel === 'low' && '✅ Low risk: Routine errand'}
-            </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="bg-white/5 border-t border-white/10 px-6 py-4 flex gap-3">
-          <button
+        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex gap-3 justify-end">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={onClose}
-            className="flex-1 px-4 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors font-semibold"
+            className="px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors"
           >
             Cancel
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark hover:shadow-lg transition-all font-semibold disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {saving ? 'Saving...' : (todo ? 'Update Todo' : 'Create Todo')}
-          </button>
+            {saving ? 'Saving...' : 'Save Task'}
+          </motion.button>
         </div>
       </motion.div>
     </motion.div>
-  )
+  );
 }
