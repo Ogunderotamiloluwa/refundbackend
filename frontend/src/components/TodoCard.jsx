@@ -122,8 +122,12 @@ export default function TodoCard({ todo, onComplete, onDelete, onEdit, userLocat
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => onDelete(todo.id)}
-          className="py-2 px-3 rounded-lg bg-white border border-gray-300 text-gray-600 hover:bg-red-50 hover:border-red-300 hover:text-red-700 transition-colors"
+          onClick={() => {
+            console.log('🗑️ Delete button clicked for todo:', todo.id)
+            onDelete && onDelete(todo.id)
+          }}
+          className="py-2 px-3 rounded-lg bg-white border border-gray-300 text-gray-600 hover:bg-red-50 hover:border-red-300 hover:text-red-700 transition-colors font-medium"
+          title="Delete this todo"
         >
           <Trash2 size={16} />
         </motion.button>

@@ -112,7 +112,7 @@ class NotificationService {
   }
 
   /**
-   * Show a browser notification
+   * Show a browser notification (works without push subscription)
    */
   showNotification(title, options = {}) {
     if (this.notificationPermission !== 'granted') {
@@ -125,12 +125,16 @@ class NotificationService {
         icon: '/favicon.ico',
         badge: '/favicon.ico',
         vibrate: [200, 100, 200],
+        tag: 'default-notification',
+        requireInteraction: true,
         ...options
       };
 
       if (this.serviceWorkerRegistration) {
+        console.log('📢 Sending notification via Service Worker:', title);
         return this.serviceWorkerRegistration.showNotification(title, defaultOptions);
       } else {
+        console.log('📢 Sending browser notification:', title);
         return new Notification(title, defaultOptions);
       }
     } catch (error) {
@@ -177,7 +181,7 @@ class NotificationService {
   async subscribeToPushNotifications(token) {
     try {
       if (!this.serviceWorkerRegistration) {
-        console.log('Service Worker not registered');
+        console.log('⚠️ Service Worker not registered - push notifications unavailable');
         return false;
       }
 
@@ -185,7 +189,13 @@ class NotificationService {
       const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
       if (!vapidPublicKey) {
-        console.log('Push notifications not configured - using local notifications only');
+        console.log('ℹ️ VAPID key not configured - Push notifications disabled (will use browser notifications only)');
+        return false;
+      }
+
+      // Validate VAPID key format
+      if (typeof vapidPublicKey !== 'string' || vapidPublicKey.length < 10) {
+        console.warn('⚠️ Invalid VAPID key format');
         return false;
       }
 
@@ -200,18 +210,24 @@ class NotificationService {
         };
 
         subscription = await this.serviceWorkerRegistration.pushManager.subscribe(subscriptionOptions);
-        console.log('Push subscription created');
+        console.log('✅ Push subscription created successfully');
       } else {
-        console.log('Using existing push subscription');
+        console.log('ℹ️ Using existing push subscription');
       }
 
       // Save subscription to backend
-      await this.savePushSubscription(subscription, token);
+      const saved = await this.savePushSubscription(subscription, token);
 
-      console.log('Push notification subscription successful');
-      return true;
+      if (saved) {
+        console.log('✅ Push notification subscription successful');
+        return true;
+      } else {
+        console.log('⚠️ Failed to save push subscription to backend');
+        return false;
+      }
     } catch (error) {
-      console.log('Push subscription unavailable:', error.message);
+      console.error('❌ Push subscription error:', error.message);
+      console.log('ℹ️ Push notifications unavailable, browser notifications will work instead');
       return false;
     }
   }

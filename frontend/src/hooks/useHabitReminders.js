@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNotifications } from '../context/NotificationContext'
 import { getWeatherAlerts } from '../services/weatherService'
+import notificationService from '../services/notificationService'
 
 export const useHabitReminders = (habits = []) => {
   const { addNotification } = useNotifications()
@@ -46,47 +47,80 @@ export const useHabitReminders = (habits = []) => {
               message: alert.message,
               autoDismiss: false
             })
+            // Also send browser notification
+            notificationService.showNotification(alert.title, {
+              body: alert.message,
+              tag: 'weather-alert',
+              requireInteraction: true
+            })
           })
           return // Don't send time reminder if weather is bad
         }
 
         // Send reminder if 15 minutes before
         if (timeDiff >= -15 * 60 * 1000 && timeDiff < -14 * 60 * 1000) {
+          const message = `${habit.name} starts in 15 minutes`
           addNotification({
             type: 'info',
             title: '⏰ Habit Time Coming Up',
-            message: `Boss, ${habit.name} starts in 15 minutes. Prepare yourself!`,
+            message: `Boss, ${message}. Prepare yourself!`,
             autoDismiss: true
+          })
+          // Browser notification
+          notificationService.showNotification('⏰ ' + habit.name, {
+            body: message + '. Get ready!',
+            tag: 'habit-' + habit.id
           })
         }
 
         // Send main reminder at habit time
         if (timeDiff >= 0 && timeDiff < 60 * 1000) {
+          const message = `It's time for ${habit.name}`
           addNotification({
             type: 'alert',
             title: '🎯 Time For Your Habit!',
-            message: `Boss, it's time for ${habit.name} (${habit.startTime}). Have you started? Don't skip this!`,
+            message: `Boss, ${message}. Have you started? Don't skip this!`,
             autoDismiss: false
+          })
+          // Browser notification
+          notificationService.showNotification('🎯 ' + habit.name, {
+            body: message,
+            tag: 'habit-' + habit.id,
+            requireInteraction: true
           })
         }
 
         // Send nag if overdue
         if (timeDiff >= 5 * 60 * 1000 && timeDiff < 6 * 60 * 1000) {
+          const message = habit.name + ' was 5 minutes ago!'
           addNotification({
             type: 'alert',
             title: '⏳ Boss, Come On!',
             message: `${habit.name} was supposed to start 5 minutes ago. You better get moving or mark it done.`,
             autoDismiss: false
           })
+          // Browser notification
+          notificationService.showNotification('⏳ Come on!', {
+            body: message,
+            tag: 'habit-' + habit.id,
+            requireInteraction: true
+          })
         }
 
         // Send heavy nag if 30+ minutes late
         if (timeDiff >= 30 * 60 * 1000 && timeDiff < 31 * 60 * 1000) {
+          const message = habit.name + ' is 30 MINUTES LATE!'
           addNotification({
             type: 'alert',
             title: '🔥 SERIOUSLY?!',
             message: `${habit.name} is NOW 30 MINUTES LATE! This is not like you. Complete it right now or remove it.`,
             autoDismiss: false
+          })
+          // Browser notification
+          notificationService.showNotification('🔥 30 Minutes Late!', {
+            body: message,
+            tag: 'habit-' + habit.id,
+            requireInteraction: true
           })
         }
       }

@@ -318,14 +318,14 @@ export default function HabitModal({ isOpen, onClose, onSave, habit = null }) {
         <div className="flex gap-3 mt-8">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 rounded-lg border border-glass-border text-gray-300 hover:bg-white/10 transition-colors font-medium"
+            className="flex-1 px-4 py-2 rounded-lg border-2 border-gray-400 text-gray-300 hover:bg-gray-400/20 transition-colors font-medium"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-command-gold to-command-cobalt text-command-dark hover:shadow-lg transition-all font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <Plus size={16} />
             {saving ? 'Saving...' : habit ? 'Update' : 'Create'} Habit
