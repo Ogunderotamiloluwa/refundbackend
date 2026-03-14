@@ -1038,45 +1038,63 @@ const chat = async (req, res) => {
       }
     }
 
-    // ============ AI SERVICE POWERED RESPONSES ============
+    // ============ LLM POWERED RESPONSES FOR GENERAL QUESTIONS ============
     else {
-      // Build context for AI service
-      const contextData = {
-        userName: user?.name || 'Chief',
-        userHabits: userHabits.map(h => ({
+      console.log('🚀 Message not custom command - routing to LLM service');
+      
+      try {
+        // Import LLM service
+        const llmService = require('./llmService');
+        
+        // Prepare user data for LLM context
+        const userForLLM = users.find(u => u.id === userId);
+        const habitsForLLM = userHabits.map(h => ({
           name: h.name,
           frequency: h.frequency,
           progress: getProgressPercentage(h.id, userId),
           streak: h.streak || 0
-        })),
-        userRoutines: userRoutines.map(r => ({
+        }));
+        const routinesForLLM = userRoutines.map(r => ({
           name: r.name,
-          time: r.time,
-          days: r.repeatDays
-        })),
-        userTodos: activeTodos.map(t => ({
+          time: r.time || 'flexible',
+          days: r.repeatDays?.join(', ') || 'All days'
+        }));
+        const todosForLLM = activeTodos.map(t => ({
           title: t.title,
-          priority: t.riskLevel,
-          time: t.scheduledTime
-        }))
-      };
+          priority: t.riskLevel || 'normal',
+          time: t.scheduledTime,
+          location: t.location || 'None'
+        }));
 
-      console.log('🤖 Using AI service for message:', message);
-      
-      // Try to get AI response
-      aiResponse = await aiService.getAIResponse(message, contextData);
+        // Get LLM response with fallback chain (Grok → OpenAI → Gemini)
+        console.log('📡 Calling LLM with fallback chain...');
+        const llmResult = await llmService.getLLMResponse(
+          message,
+          habitsForLLM,
+          routinesForLLM,
+          todosForLLM,
+          userForLLM?.name || 'Chief'
+        );
 
-      // Fallback responses if AI fails
-      if (!aiResponse) {
-        const fallbackResponses = [
-          `That's a great question, boss! Here's what I think: Start with WHY. Why does this matter to you? Once you know the why, the how becomes obvious. 🎯`,
-          `Listen, Chief - most problems have simple solutions that people overlook because they're too complex. Step back, think simply, and execute consistently. Works every time! 💯`,
-          `Focus on what you can control and stop worrying about what you can't. Your energy is precious - direct it toward things IN YOUR POWER. That's where champions operate! 🔥`,
-          `You're probably overthinking this, boss. What would the best version of yourself do in this situation? Go do that. It's usually the right answer! 🚀`,
-          `Remember: Done is better than perfect. Take action, learn from it, adjust, and do better next time. That's how progress is made! ✅`,
-          `You know what? I couldn't get my AI brain working, but that's OK. Tell me more about what you're thinking and I'll help you think it through, Chief! 🧠`,
-        ];
-        aiResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+        if (llmResult && llmResult.response) {
+          aiResponse = llmResult.response;
+          console.log(`✅ LLM response from ${llmResult.model}`);
+        } else {
+          // All LLM services failed - use fallback response
+          console.log('⚠️ All LLM services failed, using fallback');
+          const fallbackResponses = [
+            `Boss, that's a solid question! 🧠 Here's my take: Start with your WHY. Understanding the deeper reason behind your goal makes everything clearer.`,
+            `Listen, Chief - most solutions are simpler than we think. Break it down into small, actionable steps and attack them one by one. Consistency beats perfection every time! 💪`,
+            `Tough one, boss! Focus on what's in your control and let go of what isn't. Your energy is finite - use it wisely on the things you can actually influence. 🎯`,
+            `You're probably overthinking this! Take a breath and ask yourself: "What would my best self do right now?" Then go do that. Trust your instincts! 🚀`,
+            `Remember: Progress over perfection. Take action, learn from it, improve, and repeat. That's the winning formula! ✅`,
+            `I'm having trouble reaching my AI brain right now, boss. But I'm here to help you think through this. What's really bothering you about this situation? Let's talk it through! 💬`
+          ];
+          aiResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+        }
+      } catch (err) {
+        console.error('❌ LLM service error:', err.message);
+        aiResponse = `Oops, boss! I hit a snag processing that in my brain. Let me try again in a moment - or tell me what you're working on and we'll brainstorm together! 🧠`;
       }
     }
 
