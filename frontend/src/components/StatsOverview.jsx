@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Flame, CheckCircle2, TrendingUp, Target } from 'lucide-react'
 import { API_URL } from '../config/apiConfig'
 
@@ -68,15 +67,7 @@ export default function StatsOverview() {
     }
   }
 
-  const containerVariants = {
-    initial: { opacity: 0, y: -20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  }
-
-  const itemVariants = {
-    initial: { opacity: 0, scale: 0.9 },
-    animate: { opacity: 1, scale: 1 }
-  }
+  // Animations removed to keep layout static and avoid content shifting
 
   const getCardStyles = (accentColor) => {
     const colorMap = {
@@ -98,12 +89,7 @@ export default function StatsOverview() {
     }
 
     return (
-      <motion.div
-        variants={itemVariants}
-        transition={{ delay }}
-        whileHover={{ y: -4, boxShadow: "0 20px 40px rgba(0, 0, 0, 0.08)" }}
-        className={`p-5 md:p-6 rounded-2xl bg-white border-2 ${styles.bg} shadow-md hover:shadow-xl transition-all group`}
-      >
+      <div className={`p-5 md:p-6 rounded-2xl bg-white border-2 ${styles.bg} shadow-md hover:shadow-xl transition-all group`}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="text-xs md:text-sm text-gray-500 mb-2 md:mb-3 font-medium uppercase tracking-wide">{label}</div>
@@ -115,17 +101,12 @@ export default function StatsOverview() {
             <Icon size={24} className={`md:w-7 md:h-7 ${styles.icon}`} />
           </div>
         </div>
-      </motion.div>
+      </div>
     )
   }
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="initial"
-      animate="animate"
-      className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8"
-    >
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
       <StatCard
         Icon={Flame}
         label="Streak"
@@ -159,6 +140,8 @@ export default function StatsOverview() {
         accentColor="indigo"
         delay={0.3}
       />
-    </motion.div>
+      
+    </div>
   )
 }
+

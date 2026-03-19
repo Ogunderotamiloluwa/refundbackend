@@ -166,7 +166,7 @@ export default function TodoPage() {
       const data = await response.json()
       console.log('✅ Todo completed:', data)
       
-      setTodos(todos.map(t => t.id === todoId ? data.todo : t))
+      setTodos(todos.map(t => String(t.id) === String(todoId) ? data.todo : t))
       addNotification({
         type: 'success',
         title: 'Todo Completed',
@@ -207,7 +207,7 @@ export default function TodoPage() {
       }
 
       console.log('✅ Todo deleted')
-      setTodos(todos.filter(t => t.id !== todoId))
+      setTodos(todos.filter(t => String(t.id) !== String(todoId)))
       addNotification({
         type: 'info',
         title: 'Todo Deleted',

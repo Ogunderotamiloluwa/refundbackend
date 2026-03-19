@@ -50,6 +50,9 @@ function loadAllData() {
 // Call load on startup
 loadAllData()
 
+// Require LLM service for on-demand suggestions
+const llmService = require('./llmService')
+
 // Helper function to save subscriptions to persistent storage
 const saveSubscriptions = () => {
   try {
@@ -923,12 +926,16 @@ const getSuggestions = (req, res) => {
 const chat = async (req, res) => {
   const { message } = req.body;
 
+  console.log('📨 Chat request received:', { message, hasToken: !!req.userId });
+
   if (!message || message.trim() === '') {
     return res.status(400).json({ error: 'Message is required' });
   }
 
   try {
     const userId = req.userId;
+    console.log('👤 User ID:', userId);
+    
     const aiService = require('./aiService');
     
     // Load fresh data from storage
@@ -946,14 +953,78 @@ const chat = async (req, res) => {
     const msgLower = message.toLowerCase();
     let aiResponse = '';
 
+    console.log('🔍 Message analysis:', { msgLower, userHabits: userHabits.length, userRoutines: userRoutines.length, activeTodos: activeTodos.length });
+
+    // QUICK HANDLERS: respond immediately for direct project queries
+    // If user explicitly asks about their routines, return stored routines or a clear message
+    if (msgLower.includes('routine')) {
+      if (userRoutines.length === 0) {
+        try {
+          const suggestion = await llmService.getLLMResponse(
+            'Provide a short 3-step starter routine for someone who has no routines and wants to improve daily productivity and wellness.',
+            [], [], [],
+            user?.name || 'Chief'
+          );
+          if (suggestion && suggestion.response) {
+            return res.json({ message: 'Chat response generated', response: suggestion.response, context: { habitsCount: userHabits.length, routinesCount: userRoutines.length, todosCount: activeTodos.length } });
+          }
+        } catch (e) {
+          console.error('❌ LLM suggestion failed for routines:', e.message);
+        }
+
+        const noRoutineMsg = `Boss, you don't have any routines yet! I can suggest a simple starter routine: Wake up, hydrate, 10-minute movement, quick planning. Tell me if you want it more specific, sir.`;
+        return res.json({ message: 'Chat response generated', response: noRoutineMsg, context: { habitsCount: userHabits.length, routinesCount: userRoutines.length, todosCount: activeTodos.length } });
+      }
+
+      let routineDetails = `You've got ${userRoutines.length} routine(s), boss! Here are the details:\n\n`;
+      userRoutines.forEach((r, idx) => {
+        routineDetails += `${idx + 1}. **${r.name}**\n`;
+        routineDetails += `   ⏰ Time: ${r.time || 'Not set'}\n`;
+        routineDetails += `   📅 Days: ${r.repeatDays?.join(', ') || 'Not set'}\n`;
+        if (r.tasks && r.tasks.length > 0) {
+          routineDetails += `   📝 Tasks:\n`;
+          r.tasks.forEach((task, tidx) => {
+            routineDetails += `      ${tidx + 1}. ${task.name || 'Unnamed task'}\n`;
+          });
+        }
+        routineDetails += `\n`;
+      });
+
+      return res.json({ message: 'Chat response generated', response: routineDetails, context: { habitsCount: userHabits.length, routinesCount: userRoutines.length, todosCount: activeTodos.length } });
+    }
+
     // ============ SPECIAL DETAILED DATA QUERIES ============
 
     // Habit Details - Show ALL habit information
-    if (msgLower.includes('habit') && (msgLower.includes('detail') || msgLower.includes('show') || msgLower.includes('all'))) {
+    // Match more natural queries like "what is in my habit" or "show my habits"
+    if (msgLower.includes('habit') && (
+      msgLower.includes('detail') ||
+      msgLower.includes('show') ||
+      msgLower.includes('all') ||
+      msgLower.includes('what') ||
+      msgLower.includes("what's") ||
+      msgLower.includes('whats') ||
+      msgLower.includes('my habit') ||
+      msgLower.includes('my habits')
+    )) {
       if (userHabits.length === 0) {
-        aiResponse = `Boss, you haven't created any habits yet. Time to get started! Create your first habit and let's build that discipline.`;
+        try {
+          const suggestion = await llmService.getLLMResponse(
+            'Suggest 3 simple starter habits for someone aiming to improve health and productivity.',
+            [], [], [],
+            user?.name || 'Chief'
+          );
+          if (suggestion && suggestion.response) {
+            aiResponse = suggestion.response;
+          } else {
+            aiResponse = `Boss, you haven't created any habits yet. Start with: 1) 5-min morning stretch, 2) 10-min reading, 3) daily water goal, sir.`;
+          }
+        } catch (e) {
+          console.error('❌ LLM suggestion failed for habits:', e.message);
+          aiResponse = `Boss, you haven't created any habits yet. Start with: 1) 5-min morning stretch, 2) 10-min reading, 3) daily water goal.`;
+        }
       } else {
-        let habitDetails = `You've got ${userHabits.length} habit(s), Chief! Here's the complete breakdown:\n\n`;
+        let habitDetails = `You've got ${userHabits.length} habit(s), boss! Here's the complete breakdown:\n\n`;
         userHabits.forEach((h, idx) => {
           const progress = getProgressPercentage(h.id, userId);
           habitDetails += `${idx + 1}. **${h.name}**\n`;
@@ -973,11 +1044,34 @@ const chat = async (req, res) => {
     }
 
     // Routine Details - Show ALL routine information
-    else if (msgLower.includes('routine') && (msgLower.includes('detail') || msgLower.includes('show') || msgLower.includes('all'))) {
+    else if (msgLower.includes('routine') && (
+      msgLower.includes('detail') ||
+      msgLower.includes('show') ||
+      msgLower.includes('all') ||
+      msgLower.includes('what') ||
+      msgLower.includes("what's") ||
+      msgLower.includes('whats') ||
+      msgLower.includes('in my routine') ||
+      msgLower.includes('my routine')
+    )) {
       if (userRoutines.length === 0) {
-        aiResponse = `Boss, you don't have any routines yet! Building a solid routine is game-changing. What routine should we create? Morning, evening, workout?`;
+        try {
+          const suggestion = await llmService.getLLMResponse(
+            'Provide a short 3-step starter routine for someone who has no routines and wants to improve daily productivity and wellness.',
+            [], [], [],
+            user?.name || 'Chief'
+          );
+          if (suggestion && suggestion.response) {
+            aiResponse = suggestion.response;
+          } else {
+            aiResponse = `Boss, you don't have any routines yet! Building a solid routine is game-changing. Start with: 1) Morning prep, 2) Focus work block, 3) Evening wind-down, sir.`;
+          }
+        } catch (e) {
+          console.error('❌ LLM suggestion failed for routines (detailed):', e.message);
+          aiResponse = `Boss, you don't have any routines yet! Building a solid routine is game-changing. Start with: 1) Morning prep, 2) Focus work block, 3) Evening wind-down.`;
+        }
       } else {
-        let routineDetails = `You've got ${userRoutines.length} routine(s) scheduled, Chief! Here are all the details:\n\n`;
+        let routineDetails = `You've got ${userRoutines.length} routine(s) scheduled, boss! Here are all the details:\n\n`;
         userRoutines.forEach((r, idx) => {
           routineDetails += `${idx + 1}. **${r.name}**\n`;
           routineDetails += `   ⏰ Time: ${r.time || 'Not set'}\n`;
@@ -995,9 +1089,30 @@ const chat = async (req, res) => {
     }
 
     // Show all todos with details
-    else if ((msgLower.includes('todo') || msgLower.includes('task')) && (msgLower.includes('detail') || msgLower.includes('all') || msgLower.includes('list'))) {
+    else if ((msgLower.includes('todo') || msgLower.includes('task')) && (
+      msgLower.includes('detail') ||
+      msgLower.includes('all') ||
+      msgLower.includes('list') ||
+      msgLower.includes('what') ||
+      msgLower.includes('my todo') ||
+      msgLower.includes('my todos')
+    )) {
       if (activeTodos.length === 0) {
-        aiResponse = `All clear, boss! 🎉 You've got no pending todos. You're crushing it! Time to add new challenges or rest up.`;
+        try {
+          const suggestion = await llmService.getLLMResponse(
+            'Suggest 5 starter todo tasks for someone who wants to be productive today but has no current todos.',
+            [], [], [],
+            user?.name || 'Chief'
+          );
+          if (suggestion && suggestion.response) {
+            aiResponse = suggestion.response;
+          } else {
+            aiResponse = `All clear, boss! 🎉 You've got no pending todos. Try adding: 1) Plan tomorrow, 2) 20-min focused work, 3) Quick inbox cleanup, sir.`;
+          }
+        } catch (e) {
+          console.error('❌ LLM suggestion failed for todos:', e.message);
+          aiResponse = `All clear, boss! 🎉 You've got no pending todos. Try adding: 1) Plan tomorrow, 2) 20-min focused work, 3) Quick inbox cleanup.`;
+        }
       } else {
         let todoDetails = `You've got ${activeTodos.length} pending todo(s), Chief!\n\n`;
         const highPriority = activeTodos.filter(t => t.riskLevel === 'high');
@@ -1076,21 +1191,45 @@ const chat = async (req, res) => {
           userForLLM?.name || 'Chief'
         );
 
+        console.log('🔄 LLM service returned:', { hasResult: !!llmResult, model: llmResult?.model || 'none' });
+
         if (llmResult && llmResult.response) {
           aiResponse = llmResult.response;
           console.log(`✅ LLM response from ${llmResult.model}`);
         } else {
-          // All LLM services failed - use fallback response
-          console.log('⚠️ All LLM services failed, using fallback');
-          const fallbackResponses = [
-            `Boss, that's a solid question! 🧠 Here's my take: Start with your WHY. Understanding the deeper reason behind your goal makes everything clearer.`,
-            `Listen, Chief - most solutions are simpler than we think. Break it down into small, actionable steps and attack them one by one. Consistency beats perfection every time! 💪`,
-            `Tough one, boss! Focus on what's in your control and let go of what isn't. Your energy is finite - use it wisely on the things you can actually influence. 🎯`,
-            `You're probably overthinking this! Take a breath and ask yourself: "What would my best self do right now?" Then go do that. Trust your instincts! 🚀`,
-            `Remember: Progress over perfection. Take action, learn from it, improve, and repeat. That's the winning formula! ✅`,
-            `I'm having trouble reaching my AI brain right now, boss. But I'm here to help you think through this. What's really bothering you about this situation? Let's talk it through! 💬`
-          ];
-          aiResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+          // All LLM services failed - use intelligent contextual fallback
+          console.log('⚠️ All LLM services failed, using contextual fallback');
+          
+          // Simple keyword-based contextual responses
+          const lowerMsg = message.toLowerCase();
+          
+          if (lowerMsg.includes('today') || lowerMsg.includes('what day') || lowerMsg.includes('date')) {
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            aiResponse = `Today is ${dateStr}, Chief! 📅 Time to crush those goals for the day!`;
+          } else if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('how are you')) {
+            aiResponse = `Yo, boss! 💪 I'm here and ready to help you dominate your day. What's on your mind?`;
+          } else if (lowerMsg.includes('motivation') || lowerMsg.includes('motivate') || lowerMsg.includes('inspire')) {
+            aiResponse = `Listen up, legend! 🔥 You've got this! Every small step forward is progress. Keep pushing, stay consistent, and watch yourself transform. The future version of you will thank you for what you do today! 🚀`;
+          } else if (lowerMsg.includes('help') || lowerMsg.includes('assist')) {
+            const helpText = userHabits.length > 0 || userRoutines.length > 0 || activeTodos.length > 0
+              ? `I'm at your service, boss! You've got ${userHabits.length} habit${userHabits.length !== 1 ? 's' : ''}, ${userRoutines.length} routine${userRoutines.length !== 1 ? 's' : ''}, and ${activeTodos.length} todo${activeTodos.length !== 1 ? 's' : ''}. What do you want to focus on?`
+              : `I'm here to help you build amazing habits, create solid routines, and tackle your todos! What should we work on first, chief?`;
+            aiResponse = helpText;
+          } else if (lowerMsg.includes('thanks') || lowerMsg.includes('thank') || lowerMsg.includes('appreciate')) {
+            aiResponse = `You got it, boss! That's what I'm here for. Now go out there and crush those goals! 💪`;
+          } else if (lowerMsg.includes('goodbye') || lowerMsg.includes('bye') || lowerMsg.includes('quit')) {
+            aiResponse = `See you later, chief! Keep grinding and remember - consistency is key! 🎯 I'll be here whenever you need me.`;
+          } else if (lowerMsg.includes('tired') || lowerMsg.includes('tired') || lowerMsg.includes('exhausted')) {
+            aiResponse = `Hey boss, I hear you. Rest is part of the process! Take care of yourself, recharge, and come back stronger. You can't pour from an empty cup! 💚`;
+          } else if (lowerMsg.includes('problem') || lowerMsg.includes('stuck') || lowerMsg.includes('struggle')) {
+            aiResponse = `Alright legend, let's break this down! Problems are just puzzles waiting to be solved. What specifically is getting you stuck? Let's tackle it together! 🧠`;
+          } else if (lowerMsg.includes('question') || lowerMsg.includes('ask')) {
+            aiResponse = `Fire away, boss! I'm all ears. Ask me anything about your goals, habits, or just life in general. Let's figure this out together! 🤝`;
+          } else {
+            // Default intelligent response
+            aiResponse = `That's an interesting thought, chief! 🤔 Here's the thing - focus on what you can control right now. Break it down into small, actionable steps and take them one by one. Progress beats perfection every single time! 💪`;
+          }
         }
       } catch (err) {
         console.error('❌ LLM service error:', err.message);
@@ -1107,6 +1246,8 @@ const chat = async (req, res) => {
         todosCount: activeTodos.length
       }
     });
+    
+    console.log('✅ Chat response sent:', { responseLength: aiResponse.length, type: 'LLM or fallback' });
 
   } catch (error) {
     console.error('Chat error:', error);

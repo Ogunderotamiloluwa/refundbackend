@@ -92,7 +92,7 @@ export default function HabitsManagementPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setHabits(habits.map(h => h.id === editingHabit.id ? data.habit : h))
+        setHabits(habits.map(h => String(h.id) === String(editingHabit.id) ? data.habit : h))
         setIsModalOpen(false)
         setEditingHabit(null)
         addNotification({
@@ -116,7 +116,7 @@ export default function HabitsManagementPage() {
   }
 
   const handleDeleteHabit = (habitId) => {
-    setHabits(habits.filter(h => h.id !== habitId))
+    setHabits(habits.filter(h => String(h.id) !== String(habitId)))
   }
 
   const handleEdit = (habit) => {

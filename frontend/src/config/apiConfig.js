@@ -12,7 +12,8 @@ const getAPIUrl = () => {
   
   // Development environment - use localhost
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost:5000';
+    // Backend runs on 5005 locally in this workspace
+    return 'http://localhost:5005';
   }
   
   // Default fallback to Render

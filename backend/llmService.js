@@ -4,14 +4,86 @@
 // Fallback 2: Google Gemini
 require('dotenv').config();
 
-const GROK_API_KEY = process.env.GROK_API_KEY;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// GROQ configuration (Groq's OpenAI-compatible endpoint)
+const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.GROK_API_KEY;
+const GROQ_BASE_URL = process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1';
 
-console.log('🤖 LLM Service Initialization:');
-console.log('   🧠 Grok:', GROK_API_KEY ? '✅ Loaded' : '❌ Not configured');
-console.log('   🧠 OpenAI:', OPENAI_API_KEY ? '✅ Loaded' : '❌ Not configured');
-console.log('   🧠 Gemini:', GEMINI_API_KEY ? '✅ Loaded' : '❌ Not configured');
+console.log('🤖 LLM Service Initialization (Groq-only):');
+console.log('   🧠 Groq:', GROQ_API_KEY ? '✅ Loaded' : '❌ Not configured');
+console.log('   🌐 Groq Base URL:', GROQ_BASE_URL);
+const GROQ_MODELS = [
+  'allam-2-7b',
+  'groq/compound',
+  'groq/compound-mini',
+  'llama-3.1-8b-instant',
+  'llama-3.3-70b-versatile',
+  'meta-llama/llama-4-scout-17b-16e-instruct',
+  'meta-llama/llama-4-scout-17b-16e-instruct',
+  'moonshotai/kimi-k2-instruct',
+  'moonshotai/kimi-k2-instruct-0905',
+  'openai/gpt-oss-120b',
+  'openai/gpt-oss-20b',
+  'openai/gpt-oss-safeguard-20b',
+  'qwen/qwen3-32b'
+];
+
+const callGroqModel = async (model, userMessage, systemPrompt, userContext) => {
+  try {
+    if (!GROQ_API_KEY) {
+      console.log('⚠️ GROQ API key not configured');
+      return null;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+    const fullPrompt = `${systemPrompt}\n\n${userContext}\n\nUser: ${userMessage}`;
+
+    const url = `${GROQ_BASE_URL}/chat/completions`;
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: fullPrompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!resp.ok) {
+      const body = await resp.text().catch(() => '');
+      console.error(`❌ GROQ (${model}) error:`, resp.status, body || resp.statusText);
+      return null;
+    }
+
+    const data = await resp.json().catch(() => null);
+    if (!data) return null;
+
+    // OpenAI-compatible response parsing
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      return data.choices[0].message.content;
+    }
+    if (data.choices && data.choices[0] && data.choices[0].text) {
+      return data.choices[0].text;
+    }
+    // Fallback: try top-level text
+    if (data.text) return data.text;
+    return null;
+  } catch (err) {
+    console.error(`❌ GROQ (${model}) call failed:`, err.message);
+    return null;
+  }
+};
 
 /**
  * Build system prompt for LLM
@@ -21,7 +93,8 @@ const buildSystemPrompt = () => {
 
 Your personality:
 - Motivational and action-oriented (not passive)
-- Use "boss", "chief", "legend" when addressing the user
+- Always address the user using the titles "boss" and "sir". Do NOT use other nicknames like "chief" or "legend".
+- Use "boss" and "sir" respectfully and consistently when addressing the user.
 - Concise, direct, and practical
 - Encouraging but honest
 - Focus on actionable advice
@@ -97,14 +170,13 @@ const callGrokAPI = async (userMessage, systemPrompt, userContext) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'grok-beta',
+        model: 'grok-vision-beta',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: fullPrompt }
         ],
         temperature: 0.7,
-        max_tokens: 500,
-        top_p: 0.9
+        max_tokens: 500
       }),
       signal: controller.signal
     });
@@ -112,7 +184,8 @@ const callGrokAPI = async (userMessage, systemPrompt, userContext) => {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error('❌ Grok API error:', response.status, response.statusText);
+      const errorData = await response.json().catch(() => ({}));
+      console.error('❌ Grok API error:', response.status, JSON.stringify(errorData, null, 2) || response.statusText);
       return null;
     }
 
@@ -152,7 +225,7 @@ const callOpenAIAPI = async (userMessage, systemPrompt, userContext) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-4-turbo',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: fullPrompt }
@@ -167,7 +240,8 @@ const callOpenAIAPI = async (userMessage, systemPrompt, userContext) => {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error('❌ OpenAI API error:', response.status, response.statusText);
+      const body = await response.text().catch(() => '');
+      console.error('❌ OpenAI API error:', response.status, body || response.statusText);
       return null;
     }
 
@@ -200,43 +274,93 @@ const callGeminiAPI = async (userMessage, systemPrompt, userContext) => {
 
     const fullPrompt = `${systemPrompt}\n\n${userContext}\n\nUser: ${userMessage}`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: fullPrompt }
-            ]
+    // First try listing available models to select a supported endpoint
+    try {
+      const listResp = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${GEMINI_API_KEY}`);
+      if (listResp.ok) {
+        const listData = await listResp.json().catch(() => null);
+        const models = listData?.models || [];
+        // Prefer models that contain 'text' or 'bison' or 'gemini'
+        const preferred = models.find(m => /text|bison|gemini/i.test(m.name)) || models[0];
+        if (preferred && preferred.name) {
+          const modelName = preferred.name; // e.g. "models/text-bison-001"
+          console.log('🔎 Gemini selected model:', modelName);
+
+          const genUrl = `https://generativelanguage.googleapis.com/v1/${modelName}:generateText?key=${GEMINI_API_KEY}`;
+          const response = await fetch(genUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: fullPrompt,
+              temperature: 0.7,
+              maxOutputTokens: 500,
+              topP: 0.9
+            }),
+            signal: controller.signal
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            const errBody = await response.text().catch(() => '');
+            console.error('❌ Gemini API error (generate):', response.status, errBody || response.statusText);
+            return null;
           }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 500,
-          topP: 0.9
+
+          const data = await response.json().catch(() => null);
+          // Newer Gemini responses may have 'candidates' or 'text'
+          if (data?.candidates && data.candidates[0]) {
+            console.log('✅ Gemini response received (candidates)');
+            return data.candidates[0].content?.parts?.[0]?.text || data.candidates[0].text || null;
+          }
+          if (data?.output?.[0]?.content?.[0]?.text) {
+            console.log('✅ Gemini response received (output)');
+            return data.output[0].content[0].text;
+          }
+          if (data?.text) {
+            console.log('✅ Gemini response received (text)');
+            return data.text;
+          }
+          return null;
         }
-      }),
-      signal: controller.signal
-    });
+      } else {
+        const err = await listResp.text().catch(() => '');
+        console.error('❌ Gemini ListModels failed:', listResp.status, err || listResp.statusText);
+      }
+    } catch (err) {
+      console.error('❌ Gemini model discovery failed:', err.message);
+    }
 
-    clearTimeout(timeoutId);
+    // Fallback: try the older v1beta generateContent endpoint if available
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 500, topP: 0.9 }
+        }),
+        signal: controller.signal
+      });
 
-    if (!response.ok) {
-      console.error('❌ Gemini API error:', response.status, response.statusText);
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Gemini API error (fallback):', response.status, JSON.stringify(errorData, null, 2) || response.statusText);
+        return null;
+      }
+
+      const data = await response.json();
+      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+        console.log('✅ Gemini response received (fallback)');
+        return data.candidates[0].content.parts[0].text;
+      }
+      return null;
+    } catch (err) {
+      console.error('❌ Gemini API call failed (both attempts):', err.message);
       return null;
     }
-
-    const data = await response.json();
-    
-    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-      console.log('✅ Gemini response received');
-      return data.candidates[0].content.parts[0].text;
-    }
-
-    return null;
   } catch (err) {
     console.error('❌ Gemini API call failed:', err.message);
     return null;
@@ -245,41 +369,29 @@ const callGeminiAPI = async (userMessage, systemPrompt, userContext) => {
 
 /**
  * Get LLM response with fallback logic
- * Tries Grok first, falls back to OpenAI, then Gemini
+ * Tries Grok first, then OpenAI, then Gemini
  */
 const getLLMResponse = async (userMessage, userHabits, userRoutines, userTodos, userName) => {
   try {
     const systemPrompt = buildSystemPrompt();
     const userContext = buildUserContext(userHabits, userRoutines, userTodos, userName);
 
-    console.log('🔄 Attempting LLM chain: Grok → OpenAI → Gemini');
+    console.log('🔄 Attempting Groq models (in provided order)...');
 
-    // Try Grok first
-    console.log('1️⃣ Trying Grok...');
-    let response = await callGrokAPI(userMessage, systemPrompt, userContext);
-    if (response) {
-      console.log('✅ Grok succeeded');
-      return { response, model: 'Grok' };
+    for (const model of GROQ_MODELS) {
+      try {
+        console.log(`🔁 Trying Groq model: ${model}`);
+        const resp = await callGroqModel(model, userMessage, systemPrompt, userContext);
+        if (resp) {
+          console.log(`✅ Groq model succeeded: ${model}`);
+          return { response: resp, model: `groq:${model}` };
+        }
+      } catch (err) {
+        console.error(`❌ Error trying model ${model}:`, err.message);
+      }
     }
 
-    // Fallback to OpenAI
-    console.log('2️⃣ Grok failed, trying OpenAI...');
-    response = await callOpenAIAPI(userMessage, systemPrompt, userContext);
-    if (response) {
-      console.log('✅ OpenAI succeeded');
-      return { response, model: 'OpenAI GPT-4' };
-    }
-
-    // Final fallback to Gemini
-    console.log('3️⃣ OpenAI failed, trying Gemini...');
-    response = await callGeminiAPI(userMessage, systemPrompt, userContext);
-    if (response) {
-      console.log('✅ Gemini succeeded');
-      return { response, model: 'Google Gemini' };
-    }
-
-    // All failed
-    console.log('❌ All LLM services failed');
+    console.log('❌ All Groq models failed');
     return null;
 
   } catch (err) {

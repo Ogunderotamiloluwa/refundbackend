@@ -79,7 +79,7 @@ export default function RoutinesPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setRoutines(routines.map(r => r.id === editingRoutine.id ? data.routine : r))
+        setRoutines(routines.map(r => String(r.id) === String(editingRoutine.id) ? data.routine : r))
         setIsModalOpen(false)
         setEditingRoutine(null)
       }
@@ -89,7 +89,7 @@ export default function RoutinesPage() {
   }
 
   const handleDeleteRoutine = (routineId) => {
-    setRoutines(routines.filter(r => r.id !== routineId))
+    setRoutines(routines.filter(r => String(r.id) !== String(routineId)))
   }
 
   const handleEdit = (routine) => {

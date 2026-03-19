@@ -42,7 +42,7 @@ function DashboardContent() {
   const [error, setError] = useState(null)
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([
-    { id: 1, text: "Welcome back, Chief. Let's crush this day.", isAI: true },
+    { id: 1, text: "Welcome back, boss. Let's crush this day.", isAI: true },
   ])
 
   // Get user location for weather/traffic alerts
@@ -180,11 +180,11 @@ function DashboardContent() {
 
   const handleCompleteHabit = async (habitId) => {
     // Add to completed
-    setHabits(habits.map(h => h.id === habitId ? { ...h, progress: 100, completed: true } : h))
+    setHabits(habits.map(h => String(h.id) === String(habitId) ? { ...h, progress: 100, completed: true } : h))
   }
 
   const handleDeleteHabit = async (habitId) => {
-    setHabits(habits.filter(h => h.id !== habitId))
+    setHabits(habits.filter(h => String(h.id) !== String(habitId)))
   }
 
   const createNewHabit = async () => {
@@ -203,16 +203,8 @@ function DashboardContent() {
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 dark:text-white text-gray-900 font-inter overflow-hidden">
       {/* Animated Background Gradients */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-          transition={{ duration: 10, repeat: Infinity }}
-          className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-200/20 dark:bg-blue-900/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{ x: [0, -50, 0], y: [0, -30, 0] }}
-          transition={{ duration: 12, repeat: Infinity }}
-          className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/20 rounded-full blur-3xl"
-        />
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-200/20 dark:bg-blue-900/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/20 rounded-full blur-3xl" />
       </div>
 
       {/* Sidebar */}
@@ -227,13 +219,9 @@ function DashboardContent() {
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <div className="min-h-max p-4 md:p-6 max-w-7xl mx-auto w-full pb-12">
             {/* Todo Reminder at Top */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
-            >
+            <div className="mb-6">
               <TodoReminder />
-            </motion.div>
+            </div>
 
             {/* Live Stats Overview */}
             <StatsOverview />
@@ -247,51 +235,28 @@ function DashboardContent() {
 
                 {/* AI Suggestions */}
                 {suggestions.length > 0 && (
-                  <motion.section
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="p-6 rounded-lg bg-white border border-gray-200"
-                  >
+                  <section className="p-6 rounded-lg bg-white border border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">AI Recommendations</h2>
                     <div className="space-y-3">
                       {suggestions.map((suggestion, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          className="p-4 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-all cursor-pointer group"
-                        >
-                          <p className="text-sm text-gray-700 group-hover:text-blue-600 transition-colors">
-                            {suggestion}
-                          </p>
-                        </motion.div>
+                        <div key={idx} className="p-4 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-all cursor-pointer group">
+                          <p className="text-sm text-gray-700 group-hover:text-blue-600 transition-colors">{suggestion}</p>
+                        </div>
                       ))}
                     </div>
-                  </motion.section>
+                  </section>
                 )}
               </div>
 
               {/* Right Column - Stats & Weather */}
               <div className="space-y-6 lg:max-h-[calc(100vh-150px)] lg:overflow-y-auto pr-0 lg:pr-2">
                 {/* Active Habits Widget */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="p-6 rounded-lg bg-white border border-gray-200"
-                >
+                <div className="p-6 rounded-lg bg-white border border-gray-200">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Active Habits</h2>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={createNewHabit}
-                      className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all"
-                    >
+                    <button onClick={createNewHabit} className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all">
                       <Plus size={18} />
-                    </motion.button>
+                    </button>
                   </div>
 
                   {/* Habits Grid */}
@@ -307,7 +272,7 @@ function DashboardContent() {
                       ))}
                     </AnimatePresence>
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Quick Links Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
