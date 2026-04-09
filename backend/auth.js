@@ -174,9 +174,75 @@ const register = async (req, res) => {
     const userObject = savedUser.toObject ? savedUser.toObject() : savedUser;
     delete userObject.password
     
+    // Generate verification code and send email
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationToken = require('crypto').randomBytes(32).toString('hex');
+    const expiryTime = Date.now() + (15 * 60 * 1000); // 15 minutes
+    
+    // Store verification token
+    emailVerificationTokens.set(verificationToken, {
+      email,
+      code: verificationCode,
+      expiresAt: expiryTime,
+      attempts: 0,
+      userId: savedUser._id || savedUser.id
+    });
+    
+    console.log(`📧 Generated verification code for ${email}: ${verificationCode}`);
+    
+    // Send verification email using Brevo API
+    (async () => {
+      try {
+        const brevoApiKey = process.env.BREVO_API_KEY;
+        const senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@personalassistant.app';
+        
+        if (!brevoApiKey) {
+          console.error('❌ BREVO_API_KEY not configured');
+          return;
+        }
+        
+        const emailData = {
+          sender: { name: 'Personal Assistant', email: senderEmail },
+          to: [{ email, name }],
+          subject: 'Verify Your Email - Personal Assistant',
+          htmlContent: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2>Welcome to Personal Assistant!</h2>
+              <p>Hello ${name},</p>
+              <p>Thank you for signing up. Please verify your email address to complete your registration.</p>
+              <div style="background: #f0f0f0; padding: 20px; border-radius: 5px; margin: 20px 0;">
+                <p style="font-size: 24px; font-weight: bold; text-align: center; color: #007bff;">
+                  ${verificationCode}
+                </p>
+              </div>
+              <p>This code will expire in 15 minutes.</p>
+              <p>If you didn't create this account, please ignore this email.</p>
+              <p>Best regards,<br>Personal Assistant Team</p>
+            </div>
+          `
+        };
+        
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'api-key': brevoApiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(emailData),
+          timeout: 10000
+        });
+        
+        const responseText = await response.text();
+        console.log(`✅ Verification email API response: ${response.status}`);
+        
+      } catch (emailErr) {
+        console.error('❌ Failed to send verification email:', emailErr.message);
+      }
+    })();
+    
     res.status(201).json({
-      message: 'User registered successfully',
-      token,
+      message: 'User registered successfully. Check your email for verification code.',
+      token: verificationToken,
       user: userObject
     })
   } catch (err) {
