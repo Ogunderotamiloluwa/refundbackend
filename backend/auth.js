@@ -5,6 +5,9 @@ const { User } = require('./db')
 // In-memory session storage (but persisted to file)
 const sessions = new Map()
 
+// Email verification tokens with code and expiry
+const emailVerificationTokens = new Map()
+
 // Helper to manage user data with persistence
 let users = []
 
@@ -376,6 +379,84 @@ function findUserById(userId) {
   return users.find(u => u.id === userId)
 }
 
+// Email verification function
+async function verifyEmailCode(token, code) {
+  try {
+    const verificationData = emailVerificationTokens.get(token)
+    
+    if (!verificationData) {
+      return { valid: false, error: 'Verification code expired or invalid' }
+    }
+    
+    if (verificationData.expiresAt < Date.now()) {
+      emailVerificationTokens.delete(token)
+      return { valid: false, error: 'Verification code expired. Please register again.' }
+    }
+    
+    if (verificationData.attempts > 3) {
+      emailVerificationTokens.delete(token)
+      return { valid: false, error: 'Too many incorrect attempts. Please register again.' }
+    }
+    
+    if (verificationData.code !== code) {
+      verificationData.attempts += 1
+      console.log(`⚠️ Incorrect email verification attempt (${verificationData.attempts}/3) for ${verificationData.email}`)
+      return { valid: false, error: 'Incorrect code. Please try again.' }
+    }
+    
+    console.log(`✅ Email verified for ${verificationData.email}`)
+    return { valid: true, email: verificationData.email, userId: verificationData.userId, token }
+  } catch (err) {
+    console.error('❌ Error verifying email:', err.message)
+    return { valid: false, error: 'Verification failed' }
+  }
+}
+
+// Complete email verification
+async function completeEmailVerification(email) {
+  try {
+    // Check MongoDB first
+    let user = null
+    const { isConnected } = require('./db')
+    
+    if (isConnected && isConnected()) {
+      try {
+        const { User } = require('./db')
+        user = await User.findOne({ email })
+        if (user) {
+          console.log('✅ User found in MongoDB for verification completion')
+        }
+      } catch (err) {
+        console.log('⚠️ MongoDB lookup failed in completeEmailVerification:', err.message)
+      }
+    }
+    
+    // Fallback to file storage
+    if (!user) {
+      users = storage.getUsers()
+      user = users.find(u => u.email === email)
+      if (user) {
+        console.log('✅ User found in file storage for verification completion')
+      }
+    }
+    
+    if (!user) {
+      return { error: 'User not found' }
+    }
+    
+    // Generate token
+    const token = generateToken(user.id || user._id?.toString?.())
+    sessions.set(token, { userId: (user.id || user._id?.toString?.()), userEmail: email })
+    saveSessions()
+    
+    console.log(`✅ Email verification completed for ${email}`)
+    return { success: true, token, user }
+  } catch (err) {
+    console.error('❌ Error completing email verification:', err.message)
+    return { error: 'Failed to complete verification' }
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -387,5 +468,8 @@ module.exports = {
   getUsers,
   findUserById,
   hashPassword,
-  comparePasswords
+  comparePasswords,
+  verifyEmailCode,
+  completeEmailVerification,
+  emailVerificationTokens
 }

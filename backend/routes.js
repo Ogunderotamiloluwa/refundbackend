@@ -8,6 +8,7 @@ const { register, login, verify, authenticate } = require('./auth');
 router.post('/auth/register', register);
 router.post('/auth/login', login);
 router.get('/auth/verify', verify);
+router.post('/auth/verify-email', controllers.verifyEmailCode);
 
 // User Routes (Protected)
 router.get('/users/profile', authenticate, controllers.getUserProfile);

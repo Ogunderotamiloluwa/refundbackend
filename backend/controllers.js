@@ -1503,6 +1503,66 @@ const scheduleReminder = async (req, res) => {
   }
 };
 
+// Verify email code endpoint
+const verifyEmailCode = async (req, res) => {
+  const { token, code } = req.body;
+
+  console.log('📧 Email verification attempt...');
+
+  if (!token || !code) {
+    return res.status(400).json({ error: 'Token and code are required' });
+  }
+
+  try {
+    const auth = require('./auth');
+    const verifyResult = await auth.verifyEmailCode(token, code);
+
+    if (!verifyResult.valid) {
+      return res.status(400).json({ error: verifyResult.error });
+    }
+
+    // Complete verification and create session
+    const completeResult = await auth.completeEmailVerification(verifyResult.email);
+    
+    if (completeResult.error) {
+      return res.status(400).json({ error: completeResult.error });
+    }
+
+    // Get full user data - check MongoDB first, then file storage
+    let user = null;
+    const { isConnected } = require('./db');
+    
+    if (isConnected && isConnected()) {
+      try {
+        const { User } = require('./db');
+        user = await User.findOne({ email: verifyResult.email }).maxTimeMS(5000);
+        if (user) {
+          console.log('✅ User found in MongoDB for verification');
+        }
+      } catch (err) {
+        console.log('⚠️ MongoDB lookup failed:', err.message);
+      }
+    }
+    
+    if (!user) {
+      const users = auth.getUsers();
+      user = users.find(u => u.email === verifyResult.email);
+    }
+
+    res.json({
+      message: 'Email verified successfully',
+      success: true,
+      token: completeResult.token,
+      user: user ? { id: user._id || user.id, email: user.email, name: user.name } : {}
+    });
+
+    console.log('✅ Email verification completed for:', verifyResult.email);
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ error: 'Failed to verify email' });
+  }
+};
+
 module.exports = {
   getUserProfile,
   updateUserProfile,
@@ -1529,5 +1589,6 @@ module.exports = {
   subscribeToNotifications,
   sendNotification,
   getPendingReminders,
-  scheduleReminder
+  scheduleReminder,
+  verifyEmailCode
 };

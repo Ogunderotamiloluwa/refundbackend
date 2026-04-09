@@ -1,0 +1,29 @@
+# Environment variables with secrets
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Data files (local storage)
+data/users.json
+data/habitCompletions.json
+data/habits.json
+data/routines.json
+data/sessions.json
+data/subscriptions.json
+data/todos.json
