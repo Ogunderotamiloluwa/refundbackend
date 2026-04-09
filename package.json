@@ -1,0 +1,17 @@
+{
+  "name": "persona-assistant-backend",
+  "version": "1.0.0",
+  "description": "Backend for Persona Assistant",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "build": "echo 'Backend build complete'",
+    "postinstall": "cd backend && npm install"
+  },
+  "engines": {
+    "node": "22.22.0"
+  },
+  "keywords": ["backend", "assistant", "api"],
+  "author": "Godwin Bobby",
+  "license": "MIT"
+}
