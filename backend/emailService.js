@@ -38,26 +38,31 @@ const sendEmail = async (toEmail, toName, subject, htmlContent) => {
   try {
     console.log(`📨 Sending email via Brevo: to=${toEmail}, subject="${subject}"`);
     
+    const payload = {
+      sender: {
+        name: BREVO_SENDER_NAME,
+        email: BREVO_SENDER_EMAIL
+      },
+      to: [
+        {
+          email: toEmail,
+          name: toName || 'User'
+        }
+      ],
+      subject: subject,
+      htmlContent: htmlContent
+    };
+    
+    console.log(`📧 Brevo payload - sender: ${BREVO_SENDER_EMAIL}, to: ${toEmail}`);
+    console.log(`📧 HTML Content length: ${htmlContent.length} characters`);
+    
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
         'api-key': BREVO_API_KEY,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        sender: {
-          name: BREVO_SENDER_NAME,
-          email: BREVO_SENDER_EMAIL
-        },
-        to: [
-          {
-            email: toEmail,
-            name: toName || 'User'
-          }
-        ],
-        subject: subject,
-        htmlContent: htmlContent
-      })
+      body: JSON.stringify(payload)
     });
 
     console.log(`↩️ Brevo response status: ${response.status}`);
@@ -97,7 +102,11 @@ const sendEmail = async (toEmail, toName, subject, htmlContent) => {
  * @param {string} resetLink - Optional reset link
  */
 const sendPasswordResetEmail = async (email, name, resetCode, resetLink = null) => {
+  // Ensure code is a string
+  const codeStr = String(resetCode);
   console.log(`🔐 Preparing password reset email for: ${email}`);
+  console.log(`🔐 Reset code value: ${codeStr}`);
+  console.log(`🔐 Reset code type: ${typeof codeStr}`);
   
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -116,7 +125,8 @@ const sendPasswordResetEmail = async (email, name, resetCode, resetLink = null) 
         
         <div style="background: white; border: 2px solid #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 25px 0;">
           <p style="margin: 0; color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Reset Code</p>
-          <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: bold; color: #667eea; letter-spacing: 4px;">${resetCode}</p>
+          <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: bold; color: #667eea; letter-spacing: 4px; font-family: 'Courier New', monospace;">${codeStr}</p>
+          <p style="margin: 10px 0 0 0; color: #555; font-size: 14px;">Enter this code: <strong>${codeStr}</strong></p>
           <p style="margin: 10px 0 0 0; color: #999; font-size: 12px;">This code expires in 30 minutes</p>
         </div>
         
@@ -138,6 +148,8 @@ const sendPasswordResetEmail = async (email, name, resetCode, resetLink = null) 
       </div>
     </div>
   `;
+  
+  console.log(`📧 HTML Content preview (first 500 chars): ${htmlContent.substring(0, 500)}`);
 
   try {
     const result = await sendEmail(email, name, '🔐 Reset Your Password - Personal Assistant', htmlContent);
@@ -160,7 +172,11 @@ const sendPasswordResetEmail = async (email, name, resetCode, resetLink = null) 
  * @param {string} verificationCode - Email verification code
  */
 const sendVerificationEmail = async (email, name, verificationCode) => {
-  console.log(`📧 Preparing verification email for: ${email}, code: ${verificationCode}`);
+  // Ensure code is a string
+  const codeStr = String(verificationCode);
+  console.log(`📧 Preparing verification email for: ${email}`);
+  console.log(`📧 Verification code value: ${codeStr}`);
+  console.log(`📧 Verification code type: ${typeof codeStr}`);
   
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -179,7 +195,8 @@ const sendVerificationEmail = async (email, name, verificationCode) => {
         
         <div style="background: white; border: 2px solid #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 25px 0;">
           <p style="margin: 0; color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Verification Code</p>
-          <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: bold; color: #667eea; letter-spacing: 4px;">${verificationCode}</p>
+          <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: bold; color: #667eea; letter-spacing: 4px; font-family: 'Courier New', monospace;">${codeStr}</p>
+          <p style="margin: 10px 0 0 0; color: #555; font-size: 14px;">Enter this code: <strong>${codeStr}</strong></p>
           <p style="margin: 10px 0 0 0; color: #999; font-size: 12px;">This code expires in 24 hours</p>
         </div>
         
@@ -193,6 +210,8 @@ const sendVerificationEmail = async (email, name, verificationCode) => {
       </div>
     </div>
   `;
+  
+  console.log(`📧 HTML Content preview (first 500 chars): ${htmlContent.substring(0, 500)}`);
 
   try {
     const result = await sendEmail(email, name, '✅ Verify Your Email - Personal Assistant', htmlContent);
