@@ -41,10 +41,23 @@ function readData(filePath) {
 // Write data to file
 function writeData(filePath, data) {
   try {
+    const fileName = path.basename(filePath);
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
+    
+    // Log subscription writes specifically for debugging
+    if (fileName === 'subscriptions.json') {
+      console.log(`\n💾 STORAGE: Writing subscriptions.json`);
+      console.log(`   Items: ${(Array.isArray(data) ? data : []).length}`);
+      if (Array.isArray(data)) {
+        data.forEach(item => {
+          console.log(`   [${item.userId}]: ${item.subscriptions?.length || 0} subscription(s)`);
+        });
+      }
+    }
+    
     return true
   } catch (err) {
-    console.error(`Error writing to ${filePath}:`, err.message)
+    console.error(`❌ Error writing to ${filePath}:`, err.message)
     return false
   }
 }

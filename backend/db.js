@@ -71,6 +71,14 @@ const habitSchema = new mongoose.Schema({
   },
   color: String,
   icon: String,
+  scheduledTime: {
+    type: Date,
+    description: 'When the habit reminder is scheduled for'
+  },
+  startTime: String,
+  endTime: String,
+  scheduleDays: [String],
+  target: Number,
   createdAt: {
     type: Date,
     default: Date.now
@@ -96,9 +104,19 @@ const routineSchema = new mongoose.Schema({
   },
   description: String,
   time: String,
+  scheduledTime: {
+    type: Date,
+    description: 'When the routine reminder is scheduled for'
+  },
   duration: Number,
-  tasks: [String],
+  tasks: [{
+    id: mongoose.Schema.Types.ObjectId,
+    title: String,
+    completed: Boolean
+  }],
+  repeatDays: [String],
   category: String,
+  color: String,
   active: {
     type: Boolean,
     default: true
@@ -135,6 +153,16 @@ const todoSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  scheduledTime: {
+    type: Date,
+    description: 'When the todo is scheduled for'
+  },
+  riskLevel: {
+    type: String,
+    enum: ['low', 'medium', 'high'],
+    default: 'low'
+  },
+  location: String,
   priority: {
     type: String,
     enum: ['low', 'medium', 'high', 'urgent'],
@@ -144,6 +172,7 @@ const todoSchema = new mongoose.Schema({
   dueTime: String,
   category: String,
   tags: [String],
+  completedAt: Date,
   createdAt: {
     type: Date,
     default: Date.now
@@ -175,6 +204,32 @@ const habitCompletionSchema = new mongoose.Schema({
 });
 
 const HabitCompletion = mongoose.model('HabitCompletion', habitCompletionSchema, 'habitCompletions');
+
+// Session Schema - for persistent token storage across server restarts
+const sessionSchema = new mongoose.Schema({
+  token: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  userEmail: {
+    type: String,
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    expires: 604800 // Auto-delete after 7 days (TTL index)
+  }
+});
+
+const Session = mongoose.model('Session', sessionSchema, 'sessions');
 
 // Connect to MongoDB - non-blocking
 let isConnected = false;
@@ -216,6 +271,7 @@ module.exports = {
   Routine,
   Todo,
   HabitCompletion,
+  Session,
   connectDB,
   isConnected: () => isConnected && mongoose.connection.readyState === 1
 };

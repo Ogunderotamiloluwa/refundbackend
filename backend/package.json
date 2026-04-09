@@ -21,6 +21,7 @@
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
     "mongoose": "^8.23.0",
+    "node-schedule": "^2.1.1",
     "web-push": "^3.6.7"
   }
 }

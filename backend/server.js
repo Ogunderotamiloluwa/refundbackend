@@ -7,12 +7,35 @@ const app = express();
 const routes = require('./routes');
 const storage = require('./storage');
 const auth = require('./auth');
-const { connectDB } = require('./db');
+const { connectDB, Habit, Routine, Todo, Session } = require('./db');
+const notificationScheduler = require('./notificationScheduler');
 
 // Connect to MongoDB WITHOUT blocking server startup
 connectDB()
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB connection established');
+    
+    // Load sessions from MongoDB to restore any active user sessions
+    try {
+      const dbSessions = await Session.find({});
+      console.log(`📝 Loaded ${dbSessions.length} sessions from MongoDB`);
+      dbSessions.forEach(session => {
+        auth.sessions.set(session.token, {
+          userId: session.userId.toString(),
+          userEmail: session.userEmail
+        });
+      });
+    } catch (error) {
+      console.warn('⚠️ Failed to load sessions from MongoDB:', error.message);
+    }
+    
+    // Reload all scheduled notifications from database
+    // This ensures notifications persist across server restarts
+    try {
+      await notificationScheduler.reloadScheduledNotifications(Habit, Routine, Todo);
+    } catch (error) {
+      console.error('⚠️ Failed to reload scheduled notifications:', error.message);
+    }
   })
   .catch(err => {
     console.warn('⚠️ MongoDB connection failed, using file storage as fallback:', err.message);
@@ -63,8 +86,9 @@ const defaultOrigins = [
   'http://192.168.52.131:3000',
   'http://192.168.52.131:3001',
   'http://192.168.52.131:3002',
-  // Production
-  'https://personal-assistan.netlify.app',
+  // Production - include both typo and corrected URLs
+  'https://personal-assistan.netlify.app', // Current deployed version (with typo)
+  'https://personal-assistant.netlify.app', // Corrected URL
   'https://boss-pa.netlify.app'
 ];
 
@@ -187,11 +211,11 @@ app.use((err, req, res, next) => {
 
 // Start Server
 const PORT = process.env.PORT || 5001;
-const HOSTNAME = process.env.HOSTNAME || 'localhost';
+const HOSTNAME = process.env.NODE_ENV === 'production' ? (process.env.HOSTNAME || '0.0.0.0') : 'localhost';
 
-app.listen(PORT, () => {
+app.listen(PORT, HOSTNAME, () => {
   console.log(`\n🚀 PA Web App Backend running!`);
-  console.log(`   📍 Local: http://${HOSTNAME}:${PORT}`);
+  console.log(`   📍 Local: http://localhost:${PORT}`);
   console.log(`   🌐 Network: http://192.168.52.131:${PORT}`);
   console.log(`   📦 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`   💾 Database: personal-asst`);
